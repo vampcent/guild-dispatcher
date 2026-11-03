@@ -28,6 +28,7 @@ func _ready() -> void:
 	_check_shop(load("res://data/equipment/weapons/longsword.tres") as WeaponData)
 	_check_shop(load("res://data/equipment/armour/plate_armour.tres") as ArmourData)
 	_check_prices()
+	_check_new_guild()
 	finish()
 
 
@@ -63,7 +64,7 @@ func _compare(
 
 
 func _check_stock(item: ItemData) -> void:
-	var armoury: Armoury = Armoury.new(load("res://data/equipment/armoury.tres") as ArmouryData)
+	var armoury: Armoury = Armoury.new(make_stocked_armoury_data())
 	var sentinel: AdventurerData = _load_adventurer("sentinel")
 	var party: Array[Loadout] = [Loadout.new(sentinel, null, null, null, [], item)]
 	var result: QuestResult = QuestResult.new()
@@ -85,6 +86,7 @@ func _check_shop(equipment: Resource) -> void:
 	)
 	var item_name: String = equipment.get("display_name")
 	var price: int = equipment.get("price")
+	guild.ledger.gold = 500
 	var gold: int = guild.ledger.gold
 	var stocked: int = guild.armoury.get_count(equipment)
 	print("Before buying: Gold %d | %s %d" % [gold, item_name, stocked])
@@ -111,6 +113,33 @@ func _check_shop(equipment: Resource) -> void:
 		stocked + 1,
 		"A refused purchase of %s adds nothing to stock" % item_name
 	)
+
+
+# A new guild starts poor with an empty armoury, and has to send people out
+# unarmed or buy its first weapon at the market.
+func _check_new_guild() -> void:
+	var data: ArmouryData = load("res://data/equipment/armoury.tres") as ArmouryData
+	var economy: EconomyRulesData = load("res://data/rules/economy_rules.tres") as EconomyRulesData
+	var guild: GuildState = GuildState.new(
+		load("res://data/rules/campaign_rules.tres") as CampaignRulesData,
+		data,
+		economy,
+		RandomNumberGenerator.new()
+	)
+	var owned: PackedStringArray = []
+
+	for equipment: Resource in data.items + data.weapons + data.armour:
+		if guild.armoury.get_count(equipment) > 0:
+			owned.append(equipment.get("display_name"))
+
+	check_equal(owned, PackedStringArray(), "A new guild's armoury is empty")
+	check(guild.ledger.gold <= 150, "A new guild starts with little gold (%d)" % guild.ledger.gold)
+	check_equal(guild.board.size(), 3, "A new guild still has a full quest board")
+	var unarmed: Array[Loadout] = [Loadout.new(guild.roster[0]), Loadout.new(guild.roster[1])]
+	check(guild.get_party_problems(unarmed).is_empty(), "A new guild can send a party out unarmed")
+	var dagger: WeaponData = load("res://data/equipment/weapons/dagger.tres") as WeaponData
+	check(guild.buy_equipment(dagger), "A new guild can afford a dagger")
+	check_equal(guild.armoury.get_count(dagger), 1, "The dagger is in the armoury")
 
 
 func _check_prices() -> void:

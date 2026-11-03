@@ -122,6 +122,7 @@ func _ready() -> void:
 
 	print("--- Everyone dead ---")
 	var empty: GuildLedger = GuildLedger.new(_rules)
+	empty.gold = _rules.recruit_cost
 	print("Can afford a recruit: closed = %s" % empty.is_closed(0))
 	check(not empty.is_closed(0), "A guild with no adventurers stays open if it can recruit")
 	empty.gold = 100

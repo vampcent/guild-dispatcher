@@ -39,6 +39,20 @@ func check_relative(actual: float, expected: float, description: String) -> void
 	check_near(actual, expected, expected * RELATIVE_TOLERANCE, description)
 
 
+# The real armoury starts empty. Tests that need gear to hand get this copy,
+# which starts with copies of every weapon, armour and item the market sells.
+func make_stocked_armoury_data(copies: int = 2) -> ArmouryData:
+	var data: ArmouryData = (load("res://data/equipment/armoury.tres") as ArmouryData).duplicate()
+	data.starting_stock = []
+
+	for stock: Array in [data.weapons, data.armour, data.items]:
+		for equipment: Resource in stock:
+			for _copy: int in copies:
+				data.starting_stock.append(equipment)
+
+	return data
+
+
 func finish() -> void:
 	for failure: String in _failures:
 		print("FAILED: %s" % failure)

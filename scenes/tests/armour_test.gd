@@ -6,7 +6,7 @@ const EXPECTED_WOUNDS: Array[int] = [128, 120, 99, 74]
 
 
 func _ready() -> void:
-	var armoury: Armoury = Armoury.new(load("res://data/equipment/armoury.tres") as ArmouryData)
+	var armoury: Armoury = Armoury.new(make_stocked_armoury_data())
 	var thief: AdventurerData = load("res://data/characters/adventurers/thief.tres") as AdventurerData
 	var evoker: AdventurerData = load("res://data/characters/adventurers/evoker.tres") as AdventurerData
 	var exorcist: AdventurerData = load("res://data/characters/adventurers/exorcist.tres") as AdventurerData

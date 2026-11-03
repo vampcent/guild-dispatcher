@@ -5,14 +5,8 @@ var _counts: Dictionary[Resource, int] = {}
 
 
 func _init(data: ArmouryData) -> void:
-	for weapon: WeaponData in data.weapons:
-		_counts[weapon] = data.base_copies
-
-	for armour: ArmourData in data.armour:
-		_counts[armour] = data.base_copies
-
-	for item: ItemData in data.items:
-		_counts[item] = data.base_copies
+	for equipment: Resource in data.starting_stock:
+		add(equipment)
 
 
 func get_count(equipment: Resource) -> int:

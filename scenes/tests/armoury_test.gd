@@ -7,9 +7,9 @@ var _armoury: Armoury
 
 
 func _ready() -> void:
-	var data: ArmouryData = load("res://data/equipment/armoury.tres") as ArmouryData
+	var data: ArmouryData = make_stocked_armoury_data(2)
 	_armoury = Armoury.new(data)
-	print("Armoury: %d weapon types, %d of each" % [data.weapons.size(), data.base_copies])
+	print("Armoury: %d weapon types, 2 of each" % data.weapons.size())
 
 	check(_check_loadout("sentinel", "longsword", "shield"), "Sentinel can use a longsword and shield")
 	check(_check_loadout("berserker", "greatsword", ""), "Berserker can use a greatsword")

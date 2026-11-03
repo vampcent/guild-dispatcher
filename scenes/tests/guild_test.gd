@@ -1,6 +1,7 @@
 extends TestCase
 
 var _economy_rules: EconomyRulesData
+var _armoury_data: ArmouryData = make_stocked_armoury_data()
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 
@@ -561,7 +562,7 @@ func _make_guild(
 ) -> GuildState:
 	return GuildState.new(
 		rules,
-		load("res://data/equipment/armoury.tres") as ArmouryData,
+		_armoury_data,
 		_economy_rules,
 		_rng
 	)
