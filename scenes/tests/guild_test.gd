@@ -112,6 +112,7 @@ func _ready() -> void:
 	_check_ranks()
 	_check_starter_quests()
 	_check_escalation()
+	_check_scaling()
 	_check_resting()
 	_check_history()
 	finish()
@@ -372,6 +373,63 @@ func _check_escalation() -> void:
 	check_equal(seen.size(), rules.quests.size(), "A veteran guild can be offered every quest")
 	check_equal(full_boards, 500, "A veteran guild's board is always full")
 	check_equal(unique_boards, 500, "A veteran guild's board never shows a quest twice")
+
+
+# The board leans harder as time passes, and eases off when the roster is weakened.
+func _check_scaling() -> void:
+	print("--- Board scaling ---")
+	var rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
+	var guild: GuildState = _make_guild()
+	check_equal(guild.get_target_rank(), QuestData.Rank.F, "A new guild's board leans towards rank F")
+	guild.quests_attempted = rules.quests_per_target_rank * 2
+	check_equal(guild.get_target_rank(), QuestData.Rank.D, "Two steps of time move the target to rank D")
+	guild.quests_attempted = 1000
+	var full_strength: int = guild.get_target_rank()
+	check(full_strength >= QuestData.Rank.C, "The full roster can handle rank C or above")
+	guild.dead = guild.roster.slice(0, guild.roster.size() - 1)
+	check(
+		guild.get_target_rank() < full_strength,
+		"Losing most of the roster lowers the target (%s to %s)"
+		% [QuestData.get_rank_name(full_strength), QuestData.get_rank_name(guild.get_target_rank())]
+	)
+
+	var early: float = _average_board_rank(0, 0, [])
+	var later: float = _average_board_rank(1000, rules.quests_per_target_rank * 2, [])
+	var veteran: float = _average_board_rank(1000, 1000, [])
+	var survivors: Array[String] = ["spy"]
+	var weakened: float = _average_board_rank(1000, 1000, survivors)
+	print("Average board rank (F=0): new %.2f, after %d quests %.2f, veteran %.2f, veteran with only the Spy left %.2f" % [
+		early, rules.quests_per_target_rank * 2, later, veteran, weakened,
+	])
+	check(early < 0.5, "A new guild's board is mostly F-rank work")
+	check(later > early + 0.5, "The board gets harder as quests go by")
+	check(veteran > later, "A veteran guild sees harder quests still")
+	check(weakened < veteran - 1.0, "A veteran guild that has lost its roster sees easier quests again")
+
+
+# With high reputation every rank is unlocked, so only time and the roster shape the board.
+func _average_board_rank(reputation: int, quests_attempted: int, survivors: Array[String]) -> float:
+	var total: int = 0
+	var shown: int = 0
+
+	for _guild_number: int in 500:
+		var guild: GuildState = _make_guild()
+		guild.reputation = reputation
+		guild.quests_attempted = quests_attempted
+
+		if not survivors.is_empty():
+			for adventurer: AdventurerData in guild.roster:
+				if not survivors.has(adventurer.resource_path.get_file().get_basename()):
+					guild.dead.append(adventurer)
+
+		guild.board.clear()
+		guild.refresh_board()
+
+		for entry: BoardEntry in guild.board:
+			total += entry.base_quest.rank
+			shown += 1
+
+	return float(total) / shown
 
 
 func _count_rank_appearances(rank: int, reputation: int) -> int:

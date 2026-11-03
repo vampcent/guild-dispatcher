@@ -118,10 +118,64 @@ func refresh_board() -> void:
 	for entry: BoardEntry in board:
 		pool.erase(entry.base_quest)
 
+	var target_rank: int = get_target_rank()
+
 	while not pool.is_empty() and board.size() < _rules.board_size:
-		var quest: QuestData = pool[_rng.randi_range(0, pool.size() - 1)]
+		var quest: QuestData = _pick_near_rank(pool, target_rank)
 		pool.erase(quest)
 		board.append(BoardEntry.new(quest, _get_shown_rank(quest)))
+
+
+# The rank the board leans towards. It rises with time, but never past the
+# highest rank whose recommended strength the roster's best party reaches.
+func get_target_rank() -> int:
+	var by_time: int = floori(quests_attempted / float(_rules.quests_per_target_rank))
+	var by_roster: int = QuestData.Rank.F
+	var strength: int = get_roster_strength()
+
+	for rank: int in _rules.ranks.size():
+		if strength >= _rules.ranks[rank].recommended_strength:
+			by_roster = rank
+
+	return mini(by_time, by_roster)
+
+
+# Attack plus defence, before gear, of the strongest party the living roster can send.
+func get_roster_strength() -> int:
+	var strengths: Array[int] = []
+
+	for adventurer: AdventurerData in roster:
+		if not dead.has(adventurer):
+			strengths.append(adventurer.attack + adventurer.defence)
+
+	strengths.sort()
+	strengths.reverse()
+	var total: int = 0
+
+	for strength: int in strengths.slice(0, _rules.max_party_size):
+		total += strength
+
+	return total
+
+
+func _pick_near_rank(pool: Array[QuestData], target_rank: int) -> QuestData:
+	var weights: Array[int] = []
+	var total: int = 0
+
+	for quest: QuestData in pool:
+		var distance: int = mini(absi(quest.rank - target_rank), _rules.board_rank_weights.size() - 1)
+		weights.append(_rules.board_rank_weights[distance])
+		total += weights.back()
+
+	var pick: int = _rng.randi_range(1, total)
+
+	for index: int in pool.size():
+		pick -= weights[index]
+
+		if pick <= 0:
+			return pool[index]
+
+	return pool.back()
 
 
 func advance_board(chosen_quest: QuestData) -> void:
