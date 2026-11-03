@@ -3,7 +3,7 @@ extends Resource
 
 @export_range(0, 100000) var starting_gold: int = 100
 @export_range(0, 100) var costly_pay_percent: int = 60
-@export_range(0, 10000) var wage_per_adventurer: int = 50
+@export_range(0, 10000) var wage_per_adventurer: int = 25
 @export_range(1, 20) var quests_between_wages: int = 3
 @export_range(0, 100000) var debt_limit: int = 500
 @export_range(0, 100) var debt_warning_percent: int = 75

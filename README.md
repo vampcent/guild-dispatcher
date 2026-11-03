@@ -97,7 +97,8 @@ To add a test, create a scene in `scenes/tests` whose name ends in `_test`, give
 | `supplies_test` | Supply items, buying from the market and a new guild's start |
 | `board_test` | Quests worsening and expiring |
 | `scout_test` | Paying to scout quests |
-| `guild_test` | Quest board, resting, game over and guild history |
+| `guild_test` | Quest ranks, guild rank, board scaling, resting, game over and guild history |
+| `early_game_test` | Hundreds of new guilds played through their first 10 quests by a cautious bot |
 | `report_test` | Written reports |
 | `multiplayer_test` | Join codes, and two players sharing one guild over the network |
 
