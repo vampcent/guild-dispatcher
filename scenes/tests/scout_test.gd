@@ -12,7 +12,7 @@ func _ready() -> void:
 	check_equal(cost, roundi(entry.quest.pay * 0.15), "scouting costs 15% of the quest's pay")
 	check(guild.scout(entry), "scouting succeeds when the guild can afford it")
 	check_equal(guild.ledger.gold, gold_before - cost, "scouting takes the cost from gold")
-	check_equal(entry.shown_danger, entry.quest.danger, "scouting confirms the true danger")
+	check_equal(entry.shown_rank, entry.quest.rank, "scouting confirms the true rank")
 	check(not guild.scout(entry), "a quest can only be scouted once")
 	check_equal(guild.ledger.gold, gold_before - cost, "a refused scout costs nothing")
 

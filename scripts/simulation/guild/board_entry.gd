@@ -3,15 +3,15 @@ extends RefCounted
 
 var base_quest: QuestData
 var quest: QuestData
-var shown_danger: int
+var shown_rank: int
 var passes: int = 0
 var scouted: bool = false
 
 
-func _init(entry_quest: QuestData, entry_danger: int) -> void:
+func _init(entry_quest: QuestData, entry_rank: int) -> void:
 	base_quest = entry_quest
 	quest = entry_quest
-	shown_danger = entry_danger
+	shown_rank = entry_rank
 
 
 func worsen(rules: CampaignRulesData) -> void:

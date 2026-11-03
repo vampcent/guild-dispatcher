@@ -186,10 +186,9 @@ func _show_board() -> void:
 			scouting = "\n%s" % _get_scout_text(entry)
 
 		_add_button(
-			"%s | Danger %d of %d | Pays %d\n%s%s%s" % [
+			"%s | Rank %s | Pays %d\n%s%s%s" % [
 				entry.quest.display_name,
-				entry.shown_danger,
-				_campaign_rules.max_danger,
+				QuestData.get_rank_name(entry.shown_rank),
 				entry.quest.pay,
 				entry.quest.briefing,
 				pressure,
@@ -224,7 +223,7 @@ func _get_scout_text(entry: BoardEntry) -> String:
 	else:
 		advice += " Nobody fit for duty is especially suited to this."
 
-	return "Scout's report: Danger confirmed. %s" % advice
+	return "Scout's report: Rank %s confirmed. %s" % [QuestData.get_rank_name(report.true_rank), advice]
 
 
 func _show_market() -> void:

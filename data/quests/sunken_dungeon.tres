@@ -18,7 +18,7 @@
 script = ExtResource("1_quest")
 display_name = "The Sunken Dungeon"
 briefing = "Every few years the old dungeon floods, drains and fills up with something new. This year it is spiders, and they are very large."
-danger = 4
+rank = 4
 pay = 520
 quest_tags = Array[String](["dark", "poison"])
 loot_gold_min = 120

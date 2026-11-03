@@ -258,9 +258,9 @@ func _describe(guild: GuildState) -> String:
 	]
 
 	for entry: BoardEntry in guild.board:
-		parts.append("%s d%d p%d s%s" % [
+		parts.append("%s r%d p%d s%s" % [
 			entry.quest.display_name,
-			entry.shown_danger,
+			entry.shown_rank,
 			entry.passes,
 			entry.scouted,
 		])

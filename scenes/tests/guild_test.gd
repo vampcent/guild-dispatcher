@@ -1,7 +1,5 @@
 extends TestCase
 
-const MAX_DANGER: int = 5
-
 var _economy_rules: EconomyRulesData
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
@@ -138,15 +136,16 @@ func _check_board() -> void:
 
 			late_shown += 1 if entry.quest.min_quests_attempted > 0 else 0
 
-			var danger: int = entry.quest.danger
-			var error: int = absi(entry.shown_danger - danger)
+			var rank: int = entry.quest.rank
+			var error: int = absi(entry.shown_rank - rank)
 			readings += 1
 			off_by_one += 1 if error <= 1 else 0
-			out_of_range += 1 if entry.shown_danger < 1 or entry.shown_danger > MAX_DANGER else 0
+			var outside: bool = entry.shown_rank < QuestData.Rank.F or entry.shown_rank > QuestData.Rank.S
+			out_of_range += 1 if outside else 0
 			wrong += 1 if error != 0 else 0
 			# A wrong reading at the edge of the scale is clamped back, so only half show up.
-			var at_edge: bool = danger == 1 or danger == MAX_DANGER
-			expected_wrong += rules.danger_error_chance * (0.5 if at_edge else 1.0)
+			var at_edge: bool = rank == QuestData.Rank.F or rank == QuestData.Rank.S
+			expected_wrong += rules.rank_error_chance * (0.5 if at_edge else 1.0)
 
 		full_boards += 1 if guild.board.size() == board_size else 0
 		unique_boards += 1 if shown_quests.size() == guild.board.size() else 0
@@ -154,26 +153,30 @@ func _check_board() -> void:
 	check_equal(full_boards, 2000, "Every new board shows %d quests" % board_size)
 	check_equal(unique_boards, 2000, "No board shows the same quest twice")
 	check_equal(late_shown, 0, "A new guild is never offered quests meant for later")
-	check_equal(off_by_one, readings, "Shown danger is never more than 1 away from the truth")
-	check_equal(out_of_range, 0, "Shown danger stays between 1 and %d" % MAX_DANGER)
+	check_equal(off_by_one, readings, "A shown rank is never more than one step from the truth")
+	check_equal(out_of_range, 0, "Shown ranks stay between F and S")
 	check_percent(
 		100.0 * wrong / readings,
 		expected_wrong / readings,
-		"Share of wrong danger readings"
+		"Share of wrong rank readings"
 	)
 
 
 func _check_escalation() -> void:
 	print("--- Quest pool and escalation ---")
 	var rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
-	var dangers: Array[int] = []
+	var ranks: Array[int] = []
 
 	for quest: QuestData in rules.quests:
-		if not dangers.has(quest.danger):
-			dangers.append(quest.danger)
+		if not ranks.has(quest.rank):
+			ranks.append(quest.rank)
 
-	dangers.sort()
-	check_equal(dangers, [1, 2, 3, 4, 5] as Array[int], "The quest pool covers every danger level")
+	ranks.sort()
+	check_equal(
+		ranks,
+		[QuestData.Rank.E, QuestData.Rank.D, QuestData.Rank.C, QuestData.Rank.B, QuestData.Rank.A] as Array[int],
+		"The quest pool covers ranks E to A"
+	)
 
 	for quest: QuestData in rules.quests:
 		if quest.min_quests_attempted == 0:

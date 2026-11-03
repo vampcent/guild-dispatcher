@@ -18,7 +18,7 @@
 script = ExtResource("1_quest")
 display_name = "Storm the Bandit King's Keep"
 briefing = "The bandits have a king now, and he has a keep on a cliff. The walls are high, and his treasury is fuller than the town's."
-danger = 4
+rank = 4
 pay = 560
 quest_tags = Array[String](["heist", "climbing"])
 loot_gold_min = 150

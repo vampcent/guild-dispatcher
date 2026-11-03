@@ -3,8 +3,7 @@ extends Resource
 
 @export_range(1, 10) var board_size: int = 3
 @export_range(1, 10) var max_party_size: int = 4
-@export_range(1, 10) var max_danger: int = 5
-@export_range(0, 100) var danger_error_chance: int = 10
+@export_range(0, 100) var rank_error_chance: int = 10
 @export_range(1, 10) var expire_after_passes: int = 3
 @export_range(0, 100) var worsen_health_percent: int = 15
 @export_range(0, 100) var worsen_pay_percent: int = 20

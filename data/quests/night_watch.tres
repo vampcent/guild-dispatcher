@@ -15,7 +15,7 @@
 script = ExtResource("1_quest")
 display_name = "Night Watch on the Town Walls"
 briefing = "The town watch is short-handed again. Somebody has to walk the walls in the dark, and the wolves have noticed."
-danger = 1
+rank = 1
 pay = 140
 quest_tags = Array[String](["dark"])
 loot_gold_min = 10

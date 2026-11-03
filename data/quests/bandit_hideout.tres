@@ -15,7 +15,7 @@
 script = ExtResource("1_quest")
 display_name = "Raid the Bandit Hideout"
 briefing = "The bandits who keep robbing the caravans hide in a cave north of town. Their strongbox is said to be locked three times over."
-danger = 2
+rank = 2
 pay = 240
 quest_tags = Array[String](["heist", "dark"])
 loot_gold_min = 60

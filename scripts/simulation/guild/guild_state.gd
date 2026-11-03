@@ -94,7 +94,7 @@ func refresh_board() -> void:
 	while not pool.is_empty() and board.size() < _rules.board_size:
 		var quest: QuestData = pool[_rng.randi_range(0, pool.size() - 1)]
 		pool.erase(quest)
-		board.append(BoardEntry.new(quest, _get_shown_danger(quest)))
+		board.append(BoardEntry.new(quest, _get_shown_rank(quest)))
 
 
 func advance_board(chosen_quest: QuestData) -> void:
@@ -138,13 +138,13 @@ func scout(entry: BoardEntry) -> bool:
 
 	ledger.spend_gold(get_scout_cost(entry))
 	entry.scouted = true
-	entry.shown_danger = entry.quest.danger
+	entry.shown_rank = entry.quest.rank
 	return true
 
 
 func get_scout_report(entry: BoardEntry) -> ScoutReport:
 	var report: ScoutReport = ScoutReport.new()
-	report.true_danger = entry.quest.danger
+	report.true_rank = entry.quest.rank
 
 	for item: ItemData in _armoury_data.items:
 		for tag: String in item.quest_tags:
@@ -222,9 +222,10 @@ func get_most_famous_hero() -> String:
 	return best_name
 
 
-func _get_shown_danger(quest: QuestData) -> int:
-	if _rng.randi_range(1, 100) > _rules.danger_error_chance:
-		return quest.danger
+# A misread rank is one step off, but never outside F to S.
+func _get_shown_rank(quest: QuestData) -> int:
+	if _rng.randi_range(1, 100) > _rules.rank_error_chance:
+		return quest.rank
 
 	var error: int = -1 if _rng.randi_range(0, 1) == 0 else 1
-	return clampi(quest.danger + error, 1, _rules.max_danger)
+	return clampi(quest.rank + error, QuestData.Rank.F, QuestData.Rank.S)

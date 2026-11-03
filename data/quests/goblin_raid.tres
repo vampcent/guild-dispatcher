@@ -15,7 +15,7 @@
 script = ExtResource("1_quest")
 display_name = "Goblin Raid"
 briefing = "A few goblins have taken to raiding the farms. Their last victims came home feverish, so pack with care."
-danger = 2
+rank = 2
 pay = 220
 quest_tags = Array[String](["poison"])
 loot_gold_min = 30

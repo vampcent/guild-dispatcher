@@ -15,7 +15,7 @@
 script = ExtResource("1_quest")
 display_name = "Escort the Tax Collector"
 briefing = "The tax collector has to visit the hill villages and come back alive. The villagers know he is coming, and the mountain path is narrow."
-danger = 1
+rank = 1
 pay = 120
 quest_tags = Array[String](["climbing"])
 loot_gold_min = 10

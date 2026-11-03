@@ -15,7 +15,7 @@
 script = ExtResource("1_quest")
 display_name = "The Counting House Job"
 briefing = "An easy lift from a sleepy vault. The locks are old, and the only open window is a long way up."
-danger = 3
+rank = 3
 pay = 320
 quest_tags = Array[String](["heist", "climbing"])
 loot_gold_min = 100
