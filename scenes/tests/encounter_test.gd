@@ -6,7 +6,7 @@ var _rules: EncounterRulesData
 
 
 func _ready() -> void:
-	_rules = load("res://data/encounter_rules.tres") as EncounterRulesData
+	_rules = load("res://data/rules/encounter_rules.tres") as EncounterRulesData
 	var party: Array[Loadout] = _load_party(
 		["sentinel", "thief", "evoker", "exorcist"]
 	)
@@ -23,7 +23,7 @@ func _load_party(ids: Array[String]) -> Array[Loadout]:
 	var party: Array[Loadout] = []
 
 	for id: String in ids:
-		party.append(Loadout.new(load("res://data/adventurers/%s.tres" % id) as AdventurerData))
+		party.append(Loadout.new(load("res://data/characters/adventurers/%s.tres" % id) as AdventurerData))
 
 	return party
 

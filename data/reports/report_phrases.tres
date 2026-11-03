@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ReportPhrasesData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/reports/report_phrases_data.gd" id="1_phrases"]
+
+[resource]
+script = ExtResource("1_phrases")
+templates = {
+"QUEST_STARTED": ["The party set out for {detail}."],
+"ENEMY_ATTACK_MISSED": ["The {detail} lunged at {target} and missed."],
+"ADVENTURER_WOUNDED": ["{target} took a nasty wound.", "{target} took a hit that drew a lot of blood and more complaining."],
+"ADVENTURER_DIED": ["{target} was killed by the {detail}."],
+"ADVENTURER_HIT": ["{actor} landed a solid blow on the {detail}.", "{actor} drove the {detail} back."],
+"ADVENTURER_MISSED": ["{actor} swung at the {detail} and missed."],
+"ENEMIES_DEFEATED": ["The last of the {detail} fell."],
+"QUEST_SUCCEEDED": ["The quest was a success."],
+"QUEST_FAILED": ["The quest was a failure. Paperwork will follow."],
+"ABILITY_USED": ["{actor} stepped in front of {target}."],
+"BLOW_PARRIED": ["{actor} parried the blow."],
+"TRAP_SPRUNG": ["A trap went off under {target}."],
+"TRAP_SPOTTED": ["{actor} spotted a trap before anyone stepped on it."],
+"WOUND_RECOVERED": ["{actor} tended to {target}, and the wound closed."],
+"SECOND_WIND_USED": ["{actor} caught their breath and shrugged off the wound."],
+"ATTACK_DODGED": ["{target} sidestepped the {detail}.", "{target} ducked at the last moment."],
+"LOOT_FOUND": ["The party came back with {detail}.", "Among the spoils: {detail}."],
+"LOOT_POCKETED": ["{actor} reports that there was nothing else worth taking. I have doubts."],
+"LOOT_BURNED": ["What might have been {detail} is now a small pile of ash."],
+"ACCESSORY_TRIGGERED": ["{detail}"],
+"ITEM_USED": ["{detail}"],
+"GOLD_FOUND": ["The party also turned up {detail} gold in loose change.", "Searching the area turned up {detail} gold."],
+"ABILITY_TRIGGERED": ["{detail}"],
+"COLLATERAL_HIT": ["Unfortunately, {target} was standing in the way."]
+}

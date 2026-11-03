@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/equipment/item_data.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+display_name = "Antidote"
+price = 50
+quest_tags = Array[String](["poison"])
+report_line = "{actor} passed round the antidote just as the poison began to bite."

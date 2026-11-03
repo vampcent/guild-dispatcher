@@ -4,22 +4,6 @@ const OUTCOME_NAMES: Array[String] = ["Success", "Costly success", "Failure"]
 const SLOT_LABELS: Array[String] = ["No back item", "No face item", "No ring", "No necklace"]
 
 
-class PartyRow:
-	var adventurer: AdventurerData
-	var check_box: CheckBox
-	var main_option: OptionButton
-	var off_option: OptionButton
-	var armour_option: OptionButton
-	var stats_label: Label
-	var main_choices: Array[WeaponData] = []
-	var off_choices: Array[WeaponData] = []
-	var armour_choices: Array[ArmourData] = []
-	var item_option: OptionButton
-	var item_choices: Array[ItemData] = []
-	var accessory_options: Array[OptionButton] = []
-	var accessory_choices: Array[Array] = []
-
-
 var _campaign_rules: CampaignRulesData
 var _armoury_data: ArmouryData
 var _economy_rules: EconomyRulesData
@@ -36,11 +20,11 @@ var _send_button: Button
 
 
 func _ready() -> void:
-	_campaign_rules = load("res://data/campaign_rules.tres") as CampaignRulesData
-	_armoury_data = load("res://data/armoury.tres") as ArmouryData
-	_economy_rules = load("res://data/economy_rules.tres") as EconomyRulesData
-	_encounter_rules = load("res://data/encounter_rules.tres") as EncounterRulesData
-	_phrases = load("res://data/report_phrases.tres") as ReportPhrasesData
+	_campaign_rules = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
+	_armoury_data = load("res://data/equipment/armoury.tres") as ArmouryData
+	_economy_rules = load("res://data/rules/economy_rules.tres") as EconomyRulesData
+	_encounter_rules = load("res://data/rules/encounter_rules.tres") as EncounterRulesData
+	_phrases = load("res://data/reports/report_phrases.tres") as ReportPhrasesData
 	_rng.randomize()
 	_start_guild()
 

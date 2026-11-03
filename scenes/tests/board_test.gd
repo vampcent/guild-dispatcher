@@ -5,9 +5,9 @@ func _ready() -> void:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = 7
 	var guild: GuildState = GuildState.new(
-		load("res://data/campaign_rules.tres") as CampaignRulesData,
-		load("res://data/armoury.tres") as ArmouryData,
-		load("res://data/economy_rules.tres") as EconomyRulesData,
+		load("res://data/rules/campaign_rules.tres") as CampaignRulesData,
+		load("res://data/equipment/armoury.tres") as ArmouryData,
+		load("res://data/rules/economy_rules.tres") as EconomyRulesData,
 		rng
 	)
 	var tracked: BoardEntry = guild.board[0]

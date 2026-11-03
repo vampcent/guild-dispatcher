@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="ArmouryData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/equipment/armoury_data.gd" id="1_armoury"]
+[ext_resource type="Script" path="res://scripts/data/equipment/weapon_data.gd" id="2_weapon"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/longsword.tres" id="w0"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/greatsword.tres" id="w1"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/mace.tres" id="w2"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/short_sword.tres" id="w3"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/dagger.tres" id="w4"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/rapier.tres" id="w5"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/bow.tres" id="w6"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/crossbow.tres" id="w7"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/wand.tres" id="w8"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/staff.tres" id="w9"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/shield.tres" id="w10"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/holy_relic.tres" id="w11"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/lute.tres" id="w12"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/flute.tres" id="w13"]
+[ext_resource type="Resource" path="res://data/equipment/weapons/tambourine.tres" id="w14"]
+[ext_resource type="Script" path="res://scripts/data/equipment/armour_data.gd" id="3_armour"]
+[ext_resource type="Resource" path="res://data/equipment/armour/leather_armour.tres" id="ar0"]
+[ext_resource type="Resource" path="res://data/equipment/armour/chain_mail.tres" id="ar1"]
+[ext_resource type="Resource" path="res://data/equipment/armour/plate_armour.tres" id="ar2"]
+[ext_resource type="Script" path="res://scripts/data/equipment/item_data.gd" id="4_item"]
+[ext_resource type="Resource" path="res://data/equipment/items/rope.tres" id="it0"]
+[ext_resource type="Resource" path="res://data/equipment/items/torches.tres" id="it1"]
+[ext_resource type="Resource" path="res://data/equipment/items/healing_potion.tres" id="it2"]
+[ext_resource type="Resource" path="res://data/equipment/items/holy_water.tres" id="it3"]
+[ext_resource type="Resource" path="res://data/equipment/items/lockpicks.tres" id="it4"]
+[ext_resource type="Resource" path="res://data/equipment/items/antidote.tres" id="it5"]
+
+[resource]
+script = ExtResource("1_armoury")
+weapons = Array[ExtResource("2_weapon")]([ExtResource("w0"), ExtResource("w1"), ExtResource("w2"), ExtResource("w3"), ExtResource("w4"), ExtResource("w5"), ExtResource("w6"), ExtResource("w7"), ExtResource("w8"), ExtResource("w9"), ExtResource("w10"), ExtResource("w11"), ExtResource("w12"), ExtResource("w13"), ExtResource("w14")])
+armour = Array[ExtResource("3_armour")]([ExtResource("ar0"), ExtResource("ar1"), ExtResource("ar2")])
+items = Array[ExtResource("4_item")]([ExtResource("it0"), ExtResource("it1"), ExtResource("it2"), ExtResource("it3"), ExtResource("it4"), ExtResource("it5")])
