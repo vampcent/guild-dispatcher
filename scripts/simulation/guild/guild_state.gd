@@ -16,6 +16,7 @@ var board: Array[BoardEntry] = []
 var expired_quests: Array[String] = []
 var quests_attempted: int = 0
 var quests_succeeded: int = 0
+var reputation: int = 0
 var worst_disaster: String = ""
 var worst_disaster_deaths: int = 0
 
@@ -69,6 +70,22 @@ func get_party_problems(party: Array[Loadout]) -> PackedStringArray:
 	return problems
 
 
+func get_guild_rank() -> int:
+	var guild_rank: int = QuestData.Rank.F
+
+	for rank: int in _rules.ranks.size():
+		if reputation >= _rules.ranks[rank].reputation_needed:
+			guild_rank = rank
+
+	return guild_rank
+
+
+# The reputation the guild has to reach for its next rank, or -1 at rank S.
+func get_next_rank_reputation() -> int:
+	var next_rank: int = get_guild_rank() + 1
+	return _rules.ranks[next_rank].reputation_needed if next_rank < _rules.ranks.size() else -1
+
+
 func get_recommended_strength(rank: int) -> int:
 	return _rules.ranks[rank].recommended_strength
 
@@ -93,8 +110,9 @@ func buy_equipment(equipment: Resource) -> bool:
 func refresh_board() -> void:
 	var pool: Array[QuestData] = []
 
+	# A guild is offered quests up to one rank above its own.
 	for quest: QuestData in _rules.quests:
-		if quest.min_quests_attempted <= quests_attempted:
+		if quest.rank <= get_guild_rank() + 1:
 			pool.append(quest)
 
 	for entry: BoardEntry in board:
@@ -189,6 +207,7 @@ func finish_quest(quest: QuestData, party: Array[Loadout], result: QuestResult) 
 
 	if result.succeeded:
 		quests_succeeded += 1
+		reputation += _rules.ranks[quest.rank].reputation
 
 	if result.dead.size() > worst_disaster_deaths:
 		worst_disaster_deaths = result.dead.size()

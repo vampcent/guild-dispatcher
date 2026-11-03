@@ -152,6 +152,7 @@ func _show_board() -> void:
 	_set_screen(_show_board)
 	_add_label("Quest board", 24)
 	_add_session_status()
+	_add_label(_get_guild_rank_text())
 	_add_label("Gold: %d | Debt: %d / %d | Wages due in %d quests" % [
 		_guild.ledger.gold,
 		_guild.ledger.debt,
@@ -204,6 +205,21 @@ func _show_board() -> void:
 				_on_scout_pressed.bind(entry)
 			)
 			scout_button.disabled = not _guild.can_scout(entry)
+
+
+func _get_guild_rank_text() -> String:
+	var text: String = "Guild rank %s | Reputation %d" % [
+		QuestData.get_rank_name(_guild.get_guild_rank()),
+		_guild.reputation,
+	]
+
+	if _guild.get_next_rank_reputation() >= 0:
+		text += " (rank %s at %d)" % [
+			QuestData.get_rank_name(_guild.get_guild_rank() + 1),
+			_guild.get_next_rank_reputation(),
+		]
+
+	return text
 
 
 func _on_scout_pressed(entry: BoardEntry) -> void:
@@ -497,6 +513,11 @@ func _show_report(action: Dictionary, outcome: Dictionary) -> void:
 
 		_add_label("Supplies used: %s" % ", ".join(used))
 
+	if outcome["ranked_up"]:
+		_add_label("The guild has risen to rank %s! Harder quests will reach the board." % (
+			QuestData.get_rank_name(_guild.get_guild_rank())
+		))
+
 	_add_payout_line("Quest pay: +%d gold", payout.pay)
 	_add_payout_line("Loot: +%d gold", payout.loot_gold)
 	_add_payout_line("Paid towards the debt: -%d gold", payout.debt_repaid)
@@ -532,9 +553,10 @@ func _show_history() -> void:
 		_guild.ledger.debt,
 		_economy_rules.debt_limit,
 	])
-	_add_label("Quests attempted: %d | Quests completed: %d" % [
+	_add_label("Quests attempted: %d | Quests completed: %d | Guild rank reached: %s" % [
 		_guild.quests_attempted,
 		_guild.quests_succeeded,
+		QuestData.get_rank_name(_guild.get_guild_rank()),
 	])
 	_add_label("The fallen: %s" % ("None" if _guild.dead.is_empty() else _join_names(_guild.dead)))
 	_add_label("Most famous hero: %s" % _guild.get_most_famous_hero())

@@ -12,6 +12,7 @@ The tone is tongue-in-cheek fantasy, inspired by D&D.
 
 - **An endless guild:** keep taking quests until your guild fails.
 - **Quest board:** choose from a selection of quests, each with a rank from F (odd jobs) to S (legends), pay, a recommended party strength and a briefing that hints at what to pack. Party strength is total attack plus total defence, gear included.
+- **Guild rank:** successful quests earn reputation, which raises the guild from rank F towards S. The board offers quests up to one rank above the guild's own (see `docs/guild_rank.md`).
 - **Round-based encounters:** quests play out unseen in hidden rounds, with an approach stage that can trigger traps.
 - **Six adventurers:** Sentinel, Berserker, Thief, Spy, Evoker and Exorcist.
 - **Abilities:** 9 of a planned 32 class and subclass abilities, including Hold the Line, Fireball and Light Fingers.

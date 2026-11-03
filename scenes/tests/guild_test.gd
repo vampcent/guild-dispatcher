@@ -120,7 +120,7 @@ func _ready() -> void:
 func _check_board() -> void:
 	print("--- Quest board ---")
 	var rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
-	var board_size: int = mini(rules.board_size, _count_open_quests(rules, 0))
+	var board_size: int = rules.board_size
 	var late_shown: int = 0
 	var full_boards: int = 0
 	var unique_boards: int = 0
@@ -138,7 +138,7 @@ func _check_board() -> void:
 			if not shown_quests.has(entry.base_quest):
 				shown_quests.append(entry.base_quest)
 
-			late_shown += 1 if entry.quest.min_quests_attempted > 0 else 0
+			late_shown += 1 if entry.quest.rank > QuestData.Rank.E else 0
 
 			var rank: int = entry.quest.rank
 			var error: int = absi(entry.shown_rank - rank)
@@ -156,7 +156,7 @@ func _check_board() -> void:
 
 	check_equal(full_boards, 2000, "Every new board shows %d quests" % board_size)
 	check_equal(unique_boards, 2000, "No board shows the same quest twice")
-	check_equal(late_shown, 0, "A new guild is never offered quests meant for later")
+	check_equal(late_shown, 0, "A new rank F guild is only offered F and E quests")
 	check_equal(off_by_one, readings, "A shown rank is never more than one step from the truth")
 	check_equal(out_of_range, 0, "Shown ranks stay between F and S")
 	check_percent(
@@ -316,20 +316,36 @@ func _check_escalation() -> void:
 		"The quest pool covers ranks F to A"
 	)
 
-	for quest: QuestData in rules.quests:
-		if quest.min_quests_attempted == 0:
-			continue
+	print("--- Guild rank ---")
+	var guild: GuildState = _make_guild()
+	var starter: QuestData = load("res://data/quests/lost_goat.tres") as QuestData
+	var night_watch: QuestData = load("res://data/quests/night_watch.tres") as QuestData
+	check_equal(guild.get_guild_rank(), QuestData.Rank.F, "A new guild is rank F")
+	check_equal(guild.get_next_rank_reputation(), 2, "A new guild needs 2 reputation for rank E")
+	guild.finish_quest(starter, [], _make_result(false))
+	check_equal(guild.reputation, 0, "A failed quest earns no reputation")
+	guild.finish_quest(starter, [], _make_result(true))
+	check_equal(guild.reputation, 1, "An F-rank success earns 1 reputation")
+	check_equal(guild.get_guild_rank(), QuestData.Rank.F, "One starter job isn't enough for rank E")
+	var costly: QuestResult = _make_result(true)
+	costly.injured.append(guild.roster[0])
+	guild.finish_quest(starter, [], costly)
+	check_equal(guild.get_guild_rank(), QuestData.Rank.E, "A costly success still counts towards rank E")
+	guild.finish_quest(night_watch, [], _make_result(true))
+	check_equal(guild.reputation, 4, "An E-rank success earns 2 reputation")
 
-		var before: int = _count_appearances(quest, quest.min_quests_attempted - 1)
-		var after: int = _count_appearances(quest, quest.min_quests_attempted)
+	# Each rank lets quests one rank higher onto the board, and not before.
+	for rank: int in range(QuestData.Rank.D, QuestData.Rank.S):
+		var needed: int = rules.ranks[rank - 1].reputation_needed
+		var name: String = QuestData.get_rank_name(rank)
 		check_equal(
-			before,
+			_count_rank_appearances(rank, needed - 1),
 			0,
-			"%s stays off the board before %d quests" % [quest.display_name, quest.min_quests_attempted]
+			"Rank %s quests stay off the board until the guild is rank %s" % [name, QuestData.get_rank_name(rank - 1)]
 		)
 		check(
-			after > 0,
-			"%s can appear after %d quests" % [quest.display_name, quest.min_quests_attempted]
+			_count_rank_appearances(rank, needed) > 0,
+			"Rank %s quests can appear once the guild reaches rank %s" % [name, QuestData.get_rank_name(rank - 1)]
 		)
 
 	var seen: Array[QuestData] = []
@@ -337,49 +353,46 @@ func _check_escalation() -> void:
 	var unique_boards: int = 0
 
 	for _guild_number: int in 500:
-		var guild: GuildState = _make_guild()
-		guild.quests_attempted = 100
-		guild.board.clear()
-		guild.refresh_board()
+		var veteran: GuildState = _make_guild()
+		veteran.reputation = 1000
+		veteran.board.clear()
+		veteran.refresh_board()
 		var shown_quests: Array[QuestData] = []
 
-		for entry: BoardEntry in guild.board:
+		for entry: BoardEntry in veteran.board:
 			if not shown_quests.has(entry.base_quest):
 				shown_quests.append(entry.base_quest)
 
 			if not seen.has(entry.base_quest):
 				seen.append(entry.base_quest)
 
-		full_boards += 1 if guild.board.size() == rules.board_size else 0
-		unique_boards += 1 if shown_quests.size() == guild.board.size() else 0
+		full_boards += 1 if veteran.board.size() == rules.board_size else 0
+		unique_boards += 1 if shown_quests.size() == veteran.board.size() else 0
 
 	check_equal(seen.size(), rules.quests.size(), "A veteran guild can be offered every quest")
 	check_equal(full_boards, 500, "A veteran guild's board is always full")
 	check_equal(unique_boards, 500, "A veteran guild's board never shows a quest twice")
 
 
-func _count_appearances(quest: QuestData, quests_attempted: int) -> int:
+func _count_rank_appearances(rank: int, reputation: int) -> int:
 	var appearances: int = 0
 
 	for _guild_number: int in 500:
 		var guild: GuildState = _make_guild()
-		guild.quests_attempted = quests_attempted
+		guild.reputation = reputation
 		guild.board.clear()
 		guild.refresh_board()
 
 		for entry: BoardEntry in guild.board:
-			appearances += 1 if entry.base_quest == quest else 0
+			appearances += 1 if entry.base_quest.rank == rank else 0
 
 	return appearances
 
 
-func _count_open_quests(rules: CampaignRulesData, quests_attempted: int) -> int:
-	var count: int = 0
-
-	for quest: QuestData in rules.quests:
-		count += 1 if quest.min_quests_attempted <= quests_attempted else 0
-
-	return count
+func _make_result(succeeded: bool) -> QuestResult:
+	var result: QuestResult = QuestResult.new()
+	result.succeeded = succeeded
+	return result
 
 
 func _check_resting() -> void:

@@ -51,12 +51,16 @@ func _make_guild() -> GuildState:
 	var rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
 	var all_quests: CampaignRulesData = rules.duplicate() as CampaignRulesData
 	all_quests.board_size = all_quests.quests.size()
-	return GuildState.new(
+	var guild: GuildState = GuildState.new(
 		all_quests,
 		load("res://data/equipment/armoury.tres") as ArmouryData,
 		load("res://data/rules/economy_rules.tres") as EconomyRulesData,
 		rng
 	)
+	# Famous enough to be offered every quest, so the crypt is on the board.
+	guild.reputation = 1000
+	guild.refresh_board()
+	return guild
 
 
 func _find_entry(guild: GuildState, quest_name: String) -> BoardEntry:

@@ -335,6 +335,7 @@ func _apply_dispatch(action: Dictionary) -> Dictionary:
 
 	var quest: QuestData = entry.quest
 	var gold_before: int = guild.ledger.gold
+	var rank_before: int = guild.get_guild_rank()
 	var result: QuestResult = EncounterSimulator.new(
 		party,
 		quest,
@@ -350,6 +351,7 @@ func _apply_dispatch(action: Dictionary) -> Dictionary:
 		"report": report,
 		"payout": payout,
 		"gold_before": gold_before,
+		"ranked_up": guild.get_guild_rank() > rank_before,
 	}
 
 
