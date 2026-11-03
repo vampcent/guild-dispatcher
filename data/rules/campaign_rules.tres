@@ -13,8 +13,14 @@
 [ext_resource type="Resource" path="res://data/quests/restless_crypt.tres" id="q1"]
 [ext_resource type="Resource" path="res://data/quests/dragon_lair.tres" id="q2"]
 [ext_resource type="Resource" path="res://data/quests/counting_house_job.tres" id="q3"]
+[ext_resource type="Resource" path="res://data/quests/tax_collector_escort.tres" id="q4"]
+[ext_resource type="Resource" path="res://data/quests/night_watch.tres" id="q5"]
+[ext_resource type="Resource" path="res://data/quests/merchant_caravan.tres" id="q6"]
+[ext_resource type="Resource" path="res://data/quests/bandit_hideout.tres" id="q7"]
+[ext_resource type="Resource" path="res://data/quests/sunken_dungeon.tres" id="q8"]
+[ext_resource type="Resource" path="res://data/quests/bandit_kings_keep.tres" id="q9"]
 
 [resource]
 script = ExtResource("1_rules")
 adventurers = Array[ExtResource("2_adv")]([ExtResource("a0"), ExtResource("a1"), ExtResource("a2"), ExtResource("a3"), ExtResource("a4"), ExtResource("a5")])
-quests = Array[ExtResource("3_quest")]([ExtResource("q0"), ExtResource("q1"), ExtResource("q2"), ExtResource("q3")])
+quests = Array[ExtResource("3_quest")]([ExtResource("q0"), ExtResource("q1"), ExtResource("q2"), ExtResource("q3"), ExtResource("q4"), ExtResource("q5"), ExtResource("q6"), ExtResource("q7"), ExtResource("q8"), ExtResource("q9")])

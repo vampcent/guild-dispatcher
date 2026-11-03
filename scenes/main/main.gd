@@ -9,9 +9,15 @@ var _armoury_data: ArmouryData
 var _economy_rules: EconomyRulesData
 var _encounter_rules: EncounterRulesData
 var _phrases: ReportPhrasesData
-var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
-var _guild: GuildState
+var _ui_rng: RandomNumberGenerator = RandomNumberGenerator.new()
+var _session: GuildSession
+var _guild: GuildState:
+	get:
+		return _session.guild
 var _quest: QuestData
+var _screen: Callable
+var _notice: String = ""
+var _address_edit: LineEdit
 var _rows: Array[PartyRow] = []
 var _notes_label: Label
 var _send_button: Button
@@ -25,18 +31,117 @@ func _ready() -> void:
 	_economy_rules = load("res://data/rules/economy_rules.tres") as EconomyRulesData
 	_encounter_rules = load("res://data/rules/encounter_rules.tres") as EncounterRulesData
 	_phrases = load("res://data/reports/report_phrases.tres") as ReportPhrasesData
-	_rng.randomize()
-	_start_guild()
+	_ui_rng.randomize()
+	_session = GuildSession.new(
+		_campaign_rules, _armoury_data, _economy_rules, _encounter_rules, _phrases
+	)
+	add_child(_session)
+	_session.started.connect(_show_board)
+	_session.action_applied.connect(_on_action_applied)
+	_session.players_changed.connect(_on_players_changed)
+	_session.connection_lost.connect(_show_lobby)
+	_start_from_command_line()
 
 
-func _start_guild() -> void:
-	_guild = GuildState.new(_campaign_rules, _armoury_data, _economy_rules, _rng)
-	_show_board()
+# Run with -- --host or -- --join=ADDRESS to skip the lobby, for example when testing.
+func _start_from_command_line() -> void:
+	for arg: String in OS.get_cmdline_user_args():
+		if arg == "--host":
+			_on_host_pressed()
+			return
+
+		if arg.begins_with("--join="):
+			_join(arg.trim_prefix("--join="))
+			return
+
+	_show_lobby()
+
+
+func _show_lobby(message: String = "") -> void:
+	_set_screen(_show_lobby.bind(message))
+	_add_label("Guild Dispatcher", 24)
+
+	if not message.is_empty():
+		_add_label(message)
+
+	_add_button("Play alone", _session.play_alone)
+	_add_button("Host a game for two (port %d)" % GuildSession.DEFAULT_PORT, _on_host_pressed)
+	_add_label("Or join a friend's game. Enter the address they see on their quest board:")
+	_address_edit = LineEdit.new()
+	_address_edit.placeholder_text = "Address, for example 192.168.1.20"
+	_address_edit.text_submitted.connect(func(address: String) -> void: _join(address))
+	_content.add_child(_address_edit)
+	_add_button("Join", func() -> void: _join(_address_edit.text))
+
+
+func _on_host_pressed() -> void:
+	var error: Error = _session.host()
+
+	if error != OK:
+		_show_lobby("Couldn't host on port %d (%s)." % [GuildSession.DEFAULT_PORT, error_string(error)])
+
+
+func _join(address: String) -> void:
+	address = address.strip_edges()
+
+	if address.is_empty():
+		address = "127.0.0.1"
+
+	var error: Error = _session.join(address)
+
+	if error != OK:
+		_show_lobby("Couldn't connect to %s (%s)." % [address, error_string(error)])
+		return
+
+	_set_screen(_join.bind(address))
+	_add_label("Joining the guild at %s..." % address, 24)
+	_add_button("Cancel", func() -> void:
+		_session.leave()
+		_show_lobby()
+	)
+
+
+func _on_action_applied(action: Dictionary, outcome: Dictionary) -> void:
+	var mine: bool = action.get("player") == multiplayer.get_unique_id()
+
+	if outcome.has("error"):
+		if mine:
+			_notice = outcome["error"]
+			_screen.call()
+
+		return
+
+	match action.get("type"):
+		"new_guild":
+			_notice = "" if mine else "Your partner founded a new guild."
+			_show_board()
+		"dispatch":
+			_show_report(action, outcome)
+		_:
+			if not mine:
+				_notice = _describe(action)
+
+			_screen.call()
+
+
+func _describe(action: Dictionary) -> String:
+	var who: String = _session.get_player_name(action.get("player"))
+
+	if action.get("type") == "buy":
+		return "%s bought %s." % [who, load(action["equipment"]).get("display_name")]
+
+	return "%s paid to scout %s." % [who, (load(action["quest"]) as QuestData).display_name]
+
+
+func _on_players_changed() -> void:
+	if _session.guild != null and _screen.is_valid():
+		_screen.call()
 
 
 func _show_board() -> void:
-	_clear_screen()
+	_set_screen(_show_board)
 	_add_label("Quest board", 24)
+	_add_session_status()
 	_add_label("Gold: %d | Debt: %d / %d | Wages due in %d quests" % [
 		_guild.ledger.gold,
 		_guild.ledger.debt,
@@ -92,8 +197,7 @@ func _show_board() -> void:
 
 
 func _on_scout_pressed(entry: BoardEntry) -> void:
-	_guild.scout(entry)
-	_show_board()
+	_session.scout(entry)
 
 
 func _get_scout_text(entry: BoardEntry) -> String:
@@ -114,8 +218,9 @@ func _get_scout_text(entry: BoardEntry) -> String:
 
 
 func _show_market() -> void:
-	_clear_screen()
+	_set_screen(_show_market)
 	_add_label("Market", 24)
+	_add_session_status()
 	_add_label("Gold: %d" % _guild.ledger.gold)
 	_add_market_section("Items", _armoury_data.items)
 	_add_market_section("Weapons", _armoury_data.weapons)
@@ -140,8 +245,7 @@ func _add_market_section(title: String, stock: Array) -> void:
 
 
 func _on_buy_pressed(equipment: Resource) -> void:
-	_guild.buy_equipment(equipment)
-	_show_market()
+	_session.buy_equipment(equipment)
 
 
 func _on_quest_chosen(quest: QuestData) -> void:
@@ -150,7 +254,7 @@ func _on_quest_chosen(quest: QuestData) -> void:
 
 
 func _show_party_setup() -> void:
-	_clear_screen()
+	_set_screen(_refresh_party_setup)
 	_rows.clear()
 	_add_label("Party setup: %s" % _quest.display_name, 24)
 	_add_label(_quest.briefing)
@@ -170,6 +274,20 @@ func _show_party_setup() -> void:
 	_send_button = _add_button("Send them off", _on_send_pressed)
 	_add_button("Back to the board", _show_board)
 	_refresh_setup()
+
+
+# Keeps the player's choices when the guild changes underneath them, unless their quest is gone.
+func _refresh_party_setup() -> void:
+	if _guild.find_entry(_quest) == null:
+		_notice = "%s is no longer on the board." % _quest.display_name
+		_show_board()
+		return
+
+	_refresh_setup()
+
+	if not _notice.is_empty():
+		_notes_label.text = "%s %s" % [_notice, _notes_label.text]
+		_notice = ""
 
 
 func _add_party_row(adventurer: AdventurerData) -> void:
@@ -325,25 +443,21 @@ func _refresh_setup() -> void:
 
 
 func _on_send_pressed() -> void:
-	var party: Array[Loadout] = _get_party()
-	var gold_before: int = _guild.ledger.gold
-	var simulator: EncounterSimulator = EncounterSimulator.new(
-		party,
-		_quest,
-		_encounter_rules,
-		_rng,
-		_guild.armoury.get_owned_accessories()
-	)
-	var result: QuestResult = simulator.run()
-	var payout: QuestPayout = _guild.finish_quest(_quest, party, result)
-	_show_report(result, payout, gold_before)
+	_send_button.disabled = true
+	_session.dispatch(_quest, _get_party())
 
 
-func _show_report(result: QuestResult, payout: QuestPayout, gold_before: int) -> void:
-	_clear_screen()
-	_add_label("Report: %s" % _quest.display_name, 24)
+func _show_report(action: Dictionary, outcome: Dictionary) -> void:
+	var result: QuestResult = outcome["result"]
+	var payout: QuestPayout = outcome["payout"]
+	_set_screen(func() -> void: pass)
+	_add_label("Report: %s" % (outcome["quest"] as QuestData).display_name, 24)
+
+	if _session.is_online():
+		_add_label("Sent by: %s" % _session.get_player_name(action.get("player")))
+
 	_add_label("Outcome: %s" % OUTCOME_NAMES[result.get_outcome()])
-	_add_label(ReportWriter.write_report(result.events, _phrases, _rng))
+	_add_label(outcome["report"])
 
 	if not result.injured.is_empty():
 		_add_label("Injured, will sit out the next quest: %s" % _join_names(result.injured))
@@ -365,7 +479,7 @@ func _show_report(result: QuestResult, payout: QuestPayout, gold_before: int) ->
 	_add_payout_line("Wages: -%d gold", payout.wages_paid)
 	_add_payout_line("Borrowed to cover wages: debt +%d gold, with interest", payout.debt_added)
 	_add_label("Gold: %d to %d | Debt: %d / %d" % [
-		gold_before,
+		outcome["gold_before"],
 		_guild.ledger.gold,
 		_guild.ledger.debt,
 		_economy_rules.debt_limit,
@@ -386,9 +500,9 @@ func _on_report_closed() -> void:
 
 
 func _show_history() -> void:
-	_clear_screen()
+	_set_screen(func() -> void: pass)
 	_add_label("History of the guild", 24)
-	_add_label(ReportWriter.write_game_over(_guild.get_game_over_reason(), _phrases, _rng))
+	_add_label(ReportWriter.write_game_over(_guild.get_game_over_reason(), _phrases, _ui_rng))
 	_add_label("Final gold: %d | Debt: %d / %d" % [
 		_guild.ledger.gold,
 		_guild.ledger.debt,
@@ -404,7 +518,36 @@ func _show_history() -> void:
 	if not _guild.worst_disaster.is_empty():
 		_add_label("Worst disaster: %s" % _guild.worst_disaster)
 
-	_add_button("Found a new guild", _start_guild)
+	_add_button("Found a new guild", _session.found_new_guild)
+
+
+func _set_screen(screen: Callable) -> void:
+	_screen = screen
+	_clear_screen()
+
+
+func _add_session_status() -> void:
+	if _session.is_online():
+		if _session.get_player_count() < 2:
+			_add_label("Hosting. Waiting for a second player to join at %s." % _get_addresses())
+		elif multiplayer.is_server():
+			_add_label("Your partner is here. You both run this guild.")
+		else:
+			_add_label("You've joined your partner's guild. You both run it.")
+
+	if not _notice.is_empty():
+		_add_label(_notice)
+		_notice = ""
+
+
+func _get_addresses() -> String:
+	var addresses: PackedStringArray = []
+
+	for address: String in IP.get_local_addresses():
+		if address.count(".") == 3 and not address.begins_with("127."):
+			addresses.append(address)
+
+	return " or ".join(addresses) if not addresses.is_empty() else "this computer's address"
 
 
 func _clear_screen() -> void:
