@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1_weapon")
 display_name = "Holy Relic"
+price = 90
 main_hand_classes = Array[String]([])
 off_hand_classes = Array[String](["Paladin"])
 defence_bonus = 2

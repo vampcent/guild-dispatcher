@@ -19,8 +19,8 @@ func get_count(equipment: Resource) -> int:
 	return _counts.get(equipment, 0)
 
 
-func add_item(item: ItemData) -> void:
-	_counts[item] = get_count(item) + 1
+func add(equipment: Resource) -> void:
+	_counts[equipment] = get_count(equipment) + 1
 
 
 func get_owned_accessories() -> Array[AccessoryData]:

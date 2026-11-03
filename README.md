@@ -18,7 +18,7 @@ The tone is tongue-in-cheek fantasy, inspired by D&D.
 - **Shared armoury:** assign weapons, armour, accessories and supply items before each dispatch. What each adventurer can use depends on their class.
 - **Loot:** accessories come in five tiers, from common to legendary. Unique and legendary items have special effects.
 - **Scouting:** pay a share of a quest's reward to confirm its danger and learn what to pack and who to send.
-- **Economy:** earn quest pay, buy supplies and pay wages. Fall too far into debt and the guild closes.
+- **Economy:** earn quest pay, buy items, weapons and armour at the market, and pay wages. Fall too far into debt and the guild closes.
 - **Permanent death:** a second wound in the same quest kills an adventurer. The guild history records the fallen when your guild ends.
 
 ## Getting started
@@ -83,7 +83,7 @@ To add a test, create a scene in `scenes/tests` whose name ends in `_test`, give
 | `armour_test` | Armour trade-offs |
 | `loot_test` | Accessories, item tiers and loot |
 | `economy_test` | Pay, wages, debt and closing the guild |
-| `supplies_test` | Supply items and buying more |
+| `supplies_test` | Supply items and buying from the market |
 | `board_test` | Quests worsening and expiring |
 | `scout_test` | Paying to scout quests |
 | `guild_test` | Quest board, resting, game over and guild history |

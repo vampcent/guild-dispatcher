@@ -69,12 +69,15 @@ func get_party_problems(party: Array[Loadout]) -> PackedStringArray:
 	return problems
 
 
-func buy_item(item: ItemData) -> bool:
-	if not ledger.can_afford(item.price):
+# Buys one item, weapon or armour for the armoury.
+func buy_equipment(equipment: Resource) -> bool:
+	var price: int = equipment.get("price")
+
+	if not ledger.can_afford(price):
 		return false
 
-	ledger.spend_gold(item.price)
-	armoury.add_item(item)
+	ledger.spend_gold(price)
+	armoury.add(equipment)
 	return true
 
 

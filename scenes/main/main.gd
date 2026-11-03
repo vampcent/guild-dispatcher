@@ -58,7 +58,7 @@ func _show_board() -> void:
 	if not _guild.expired_quests.is_empty():
 		_add_label("Contracts lost while you were busy: %s" % ", ".join(_guild.expired_quests))
 
-	_add_button("Buy supplies", _show_supplies)
+	_add_button("Visit the market", _show_market)
 
 	for entry: BoardEntry in _guild.board:
 		var pressure: String = ""
@@ -113,28 +113,35 @@ func _get_scout_text(entry: BoardEntry) -> String:
 	return "Scout's report: Danger confirmed. %s" % advice
 
 
-func _show_supplies() -> void:
+func _show_market() -> void:
 	_clear_screen()
-	_add_label("Supplies", 24)
+	_add_label("Market", 24)
 	_add_label("Gold: %d" % _guild.ledger.gold)
-
-	for item: ItemData in _armoury_data.items:
-		var button: Button = _add_button(
-			"Buy %s for %d gold (you have %d)" % [
-				item.display_name,
-				item.price,
-				_guild.armoury.get_count(item),
-			],
-			_on_buy_pressed.bind(item)
-		)
-		button.disabled = not _guild.ledger.can_afford(item.price)
-
+	_add_market_section("Items", _armoury_data.items)
+	_add_market_section("Weapons", _armoury_data.weapons)
+	_add_market_section("Armour", _armoury_data.armour)
 	_add_button("Back to the board", _show_board)
 
 
-func _on_buy_pressed(item: ItemData) -> void:
-	_guild.buy_item(item)
-	_show_supplies()
+func _add_market_section(title: String, stock: Array) -> void:
+	_add_label(title, 18)
+
+	for equipment: Resource in stock:
+		var price: int = equipment.get("price")
+		var button: Button = _add_button(
+			"Buy %s for %d gold (you have %d)" % [
+				equipment.get("display_name"),
+				price,
+				_guild.armoury.get_count(equipment),
+			],
+			_on_buy_pressed.bind(equipment)
+		)
+		button.disabled = not _guild.ledger.can_afford(price)
+
+
+func _on_buy_pressed(equipment: Resource) -> void:
+	_guild.buy_equipment(equipment)
+	_show_market()
 
 
 func _on_quest_chosen(quest: QuestData) -> void:
