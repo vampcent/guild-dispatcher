@@ -17,7 +17,7 @@ var _guild: GuildState:
 var _quest: QuestData
 var _screen: Callable
 var _notice: String = ""
-var _address_edit: LineEdit
+var _code_edit: LineEdit
 var _rows: Array[PartyRow] = []
 var _notes_label: Label
 var _send_button: Button
@@ -40,6 +40,7 @@ func _ready() -> void:
 	_session.action_applied.connect(_on_action_applied)
 	_session.players_changed.connect(_on_players_changed)
 	_session.connection_lost.connect(_show_lobby)
+	_session.online_status_changed.connect(_on_players_changed)
 	_start_from_command_line()
 
 
@@ -66,12 +67,12 @@ func _show_lobby(message: String = "") -> void:
 
 	_add_button("Play alone", _session.play_alone)
 	_add_button("Host a game for two (port %d)" % GuildSession.DEFAULT_PORT, _on_host_pressed)
-	_add_label("Or join a friend's game. Enter the address they see on their quest board:")
-	_address_edit = LineEdit.new()
-	_address_edit.placeholder_text = "Address, for example 192.168.1.20"
-	_address_edit.text_submitted.connect(func(address: String) -> void: _join(address))
-	_content.add_child(_address_edit)
-	_add_button("Join", func() -> void: _join(_address_edit.text))
+	_add_label("Or join a friend's game with the join code on their quest board:")
+	_code_edit = LineEdit.new()
+	_code_edit.placeholder_text = "Join code, for example K7F2-QX9M"
+	_code_edit.text_submitted.connect(func(code: String) -> void: _join.call_deferred(code))
+	_content.add_child(_code_edit)
+	_add_button("Join", func() -> void: _join(_code_edit.text))
 
 
 func _on_host_pressed() -> void:
@@ -81,20 +82,29 @@ func _on_host_pressed() -> void:
 		_show_lobby("Couldn't host on port %d (%s)." % [GuildSession.DEFAULT_PORT, error_string(error)])
 
 
-func _join(address: String) -> void:
-	address = address.strip_edges()
+# Takes a join code, or a plain address such as 127.0.0.1 for testing on one computer.
+func _join(code: String) -> void:
+	code = code.strip_edges()
+	var address: String = code if code.count(".") == 3 else JoinCode.decode(code)
+
+	if code.is_empty():
+		_show_lobby("Enter your partner's join code.")
+		return
 
 	if address.is_empty():
-		address = "127.0.0.1"
+		_show_lobby("%s isn't a join code. Check it with your partner." % code)
+		_code_edit.text = code
+		return
 
 	var error: Error = _session.join(address)
 
 	if error != OK:
-		_show_lobby("Couldn't connect to %s (%s)." % [address, error_string(error)])
+		_show_lobby("Couldn't connect with that join code (%s)." % error_string(error))
+		_code_edit.text = code
 		return
 
-	_set_screen(_join.bind(address))
-	_add_label("Joining the guild at %s..." % address, 24)
+	_set_screen(_join.bind(code))
+	_add_label("Joining your partner's guild...", 24)
 	_add_button("Cancel", func() -> void:
 		_session.leave()
 		_show_lobby()
@@ -529,7 +539,7 @@ func _set_screen(screen: Callable) -> void:
 func _add_session_status() -> void:
 	if _session.is_online():
 		if _session.get_player_count() < 2:
-			_add_label("Hosting. Waiting for a second player to join at %s." % _get_addresses())
+			_add_label(_get_hosting_text())
 		elif multiplayer.is_server():
 			_add_label("Your partner is here. You both run this guild.")
 		else:
@@ -540,14 +550,25 @@ func _add_session_status() -> void:
 		_notice = ""
 
 
-func _get_addresses() -> String:
-	var addresses: PackedStringArray = []
+func _get_hosting_text() -> String:
+	var lines: PackedStringArray = ["Hosting. Your partner enters a join code on their start screen."]
+	var address: String = JoinCode.pick_local_address(IP.get_local_addresses())
 
-	for address: String in IP.get_local_addresses():
-		if address.count(".") == 3 and not address.begins_with("127."):
-			addresses.append(address)
+	if not _session.online_code.is_empty():
+		lines.append("Online join code: %s" % _session.online_code)
+	elif _session.online_problem.is_empty():
+		lines.append("Opening your router for online play...")
+	else:
+		lines.append(
+			"Online play isn't available: %s. To play online anyway, forward UDP port %d on"
+			% [_session.online_problem, GuildSession.DEFAULT_PORT]
+			+ " your router and give your partner your public IP address instead of a code."
+		)
 
-	return " or ".join(addresses) if not addresses.is_empty() else "this computer's address"
+	if not address.is_empty():
+		lines.append("Same network join code: %s" % JoinCode.encode(address))
+
+	return "\n".join(lines)
 
 
 func _clear_screen() -> void:

@@ -36,10 +36,10 @@ To make **F5** start the game, right-click `main.tscn` and choose **Set as Main 
 
 Two people can run the same guild at once over a local network. You share one pot of gold, one armoury, one roster and one quest board, and either of you can buy supplies, scout, send a party or found a new guild. When a party comes back, you both see the report.
 
-1. One player chooses **Host a game for two**. Their quest board shows the address to join.
-2. The other player types that address on the start screen and chooses **Join**.
+1. One player chooses **Host a game for two**. Their quest board shows join codes, such as `R2M0-253N`.
+2. The other player types a code on the start screen and chooses **Join**. Use the **online** code from anywhere on the internet, or the **same network** code when you're both on the same home network.
 
-The host uses UDP port 7777, so their firewall needs to allow it. To skip the start screen, run the game with `-- --host` or `-- --join=ADDRESS`.
+A join code stands for the host's address. To make the online code, the game asks the host's router to open UDP port 7777 using UPnP, which most home routers allow. If the router refuses, or the internet provider shares one address between customers (common on mobile networks), the quest board says so: the same network code still works, and you can forward UDP port 7777 on the router yourself and share the public IP address instead. The host's firewall also needs to allow the game. To skip the start screen, run the game with `-- --host` or `-- --join=CODE`.
 
 ## Project structure
 
@@ -98,7 +98,7 @@ To add a test, create a scene in `scenes/tests` whose name ends in `_test`, give
 | `scout_test` | Paying to scout quests |
 | `guild_test` | Quest board, resting, game over and guild history |
 | `report_test` | Written reports |
-| `multiplayer_test` | Two players sharing one guild over the network |
+| `multiplayer_test` | Join codes, and two players sharing one guild over the network |
 
 ## Roadmap
 
