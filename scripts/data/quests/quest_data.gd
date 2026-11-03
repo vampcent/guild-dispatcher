@@ -18,3 +18,4 @@ extends Resource
 @export_range(1, 500) var enemy_health: int = 40
 @export_range(0, 10) var enemy_attacks_per_round: int = 2
 @export_range(0, 20) var enemy_power: int = 5
+@export_range(0, 100) var min_quests_attempted: int = 0

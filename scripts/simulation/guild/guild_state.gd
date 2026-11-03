@@ -66,7 +66,11 @@ func buy_item(item: ItemData) -> bool:
 
 
 func refresh_board() -> void:
-	var pool: Array[QuestData] = _rules.quests.duplicate()
+	var pool: Array[QuestData] = []
+
+	for quest: QuestData in _rules.quests:
+		if quest.min_quests_attempted <= quests_attempted:
+			pool.append(quest)
 
 	for entry: BoardEntry in board:
 		pool.erase(entry.base_quest)

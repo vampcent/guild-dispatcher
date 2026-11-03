@@ -68,6 +68,7 @@ func _ready() -> void:
 		"An open guild has no game-over line"
 	)
 	_check_board()
+	_check_escalation()
 	_check_resting()
 	_check_history()
 	finish()
@@ -76,7 +77,8 @@ func _ready() -> void:
 func _check_board() -> void:
 	print("--- Quest board ---")
 	var rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
-	var board_size: int = mini(rules.board_size, rules.quests.size())
+	var board_size: int = mini(rules.board_size, _count_open_quests(rules, 0))
+	var late_shown: int = 0
 	var full_boards: int = 0
 	var unique_boards: int = 0
 	var readings: int = 0
@@ -93,6 +95,8 @@ func _check_board() -> void:
 			if not shown_quests.has(entry.base_quest):
 				shown_quests.append(entry.base_quest)
 
+			late_shown += 1 if entry.quest.min_quests_attempted > 0 else 0
+
 			var danger: int = entry.quest.danger
 			var error: int = absi(entry.shown_danger - danger)
 			readings += 1
@@ -108,6 +112,7 @@ func _check_board() -> void:
 
 	check_equal(full_boards, 2000, "Every new board shows %d quests" % board_size)
 	check_equal(unique_boards, 2000, "No board shows the same quest twice")
+	check_equal(late_shown, 0, "A new guild is never offered quests meant for later")
 	check_equal(off_by_one, readings, "Shown danger is never more than 1 away from the truth")
 	check_equal(out_of_range, 0, "Shown danger stays between 1 and %d" % MAX_DANGER)
 	check_percent(
@@ -115,6 +120,84 @@ func _check_board() -> void:
 		expected_wrong / readings,
 		"Share of wrong danger readings"
 	)
+
+
+func _check_escalation() -> void:
+	print("--- Quest pool and escalation ---")
+	var rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
+	var dangers: Array[int] = []
+
+	for quest: QuestData in rules.quests:
+		if not dangers.has(quest.danger):
+			dangers.append(quest.danger)
+
+	dangers.sort()
+	check_equal(dangers, [1, 2, 3, 4, 5] as Array[int], "The quest pool covers every danger level")
+
+	for quest: QuestData in rules.quests:
+		if quest.min_quests_attempted == 0:
+			continue
+
+		var before: int = _count_appearances(quest, quest.min_quests_attempted - 1)
+		var after: int = _count_appearances(quest, quest.min_quests_attempted)
+		check_equal(
+			before,
+			0,
+			"%s stays off the board before %d quests" % [quest.display_name, quest.min_quests_attempted]
+		)
+		check(
+			after > 0,
+			"%s can appear after %d quests" % [quest.display_name, quest.min_quests_attempted]
+		)
+
+	var seen: Array[QuestData] = []
+	var full_boards: int = 0
+	var unique_boards: int = 0
+
+	for _guild_number: int in 500:
+		var guild: GuildState = _make_guild()
+		guild.quests_attempted = 100
+		guild.board.clear()
+		guild.refresh_board()
+		var shown_quests: Array[QuestData] = []
+
+		for entry: BoardEntry in guild.board:
+			if not shown_quests.has(entry.base_quest):
+				shown_quests.append(entry.base_quest)
+
+			if not seen.has(entry.base_quest):
+				seen.append(entry.base_quest)
+
+		full_boards += 1 if guild.board.size() == rules.board_size else 0
+		unique_boards += 1 if shown_quests.size() == guild.board.size() else 0
+
+	check_equal(seen.size(), rules.quests.size(), "A veteran guild can be offered every quest")
+	check_equal(full_boards, 500, "A veteran guild's board is always full")
+	check_equal(unique_boards, 500, "A veteran guild's board never shows a quest twice")
+
+
+func _count_appearances(quest: QuestData, quests_attempted: int) -> int:
+	var appearances: int = 0
+
+	for _guild_number: int in 500:
+		var guild: GuildState = _make_guild()
+		guild.quests_attempted = quests_attempted
+		guild.board.clear()
+		guild.refresh_board()
+
+		for entry: BoardEntry in guild.board:
+			appearances += 1 if entry.base_quest == quest else 0
+
+	return appearances
+
+
+func _count_open_quests(rules: CampaignRulesData, quests_attempted: int) -> int:
+	var count: int = 0
+
+	for quest: QuestData in rules.quests:
+		count += 1 if quest.min_quests_attempted <= quests_attempted else 0
+
+	return count
 
 
 func _check_resting() -> void:
