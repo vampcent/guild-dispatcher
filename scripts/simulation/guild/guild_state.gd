@@ -1,6 +1,12 @@
 class_name GuildState
 extends RefCounted
 
+enum GameOverReason {
+	NONE,
+	ALL_DEAD,
+	DEBT,
+}
+
 const MAX_DANGER: int = 5
 
 var roster: Array[AdventurerData] = []
@@ -171,7 +177,17 @@ func finish_quest(quest: QuestData, party: Array[Loadout], result: QuestResult) 
 
 
 func is_over() -> bool:
-	return get_living_count() == 0 or ledger.is_closed(get_living_count())
+	return get_game_over_reason() != GameOverReason.NONE
+
+
+func get_game_over_reason() -> GameOverReason:
+	if get_living_count() == 0:
+		return GameOverReason.ALL_DEAD
+
+	if ledger.is_closed(get_living_count()):
+		return GameOverReason.DEBT
+
+	return GameOverReason.NONE
 
 
 func get_most_famous_hero() -> String:

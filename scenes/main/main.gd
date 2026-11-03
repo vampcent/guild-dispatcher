@@ -396,6 +396,12 @@ func _on_report_closed() -> void:
 func _show_history() -> void:
 	_clear_screen()
 	_add_label("History of the guild", 24)
+	_add_label(ReportWriter.write_game_over(_guild.get_game_over_reason(), _phrases, _rng))
+	_add_label("Final gold: %d | Debt: %d / %d" % [
+		_guild.ledger.gold,
+		_guild.ledger.debt,
+		_economy_rules.debt_limit,
+	])
 	_add_label("Quests attempted: %d | Quests completed: %d" % [
 		_guild.quests_attempted,
 		_guild.quests_succeeded,
