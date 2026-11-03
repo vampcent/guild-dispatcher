@@ -22,6 +22,7 @@ var worst_disaster: String = ""
 var worst_disaster_deaths: int = 0
 
 var _rules: CampaignRulesData
+var _armoury_data: ArmouryData
 var _rng: RandomNumberGenerator
 var _hits: Dictionary[String, int] = {}
 
@@ -33,6 +34,7 @@ func _init(
 	rng: RandomNumberGenerator
 ) -> void:
 	_rules = rules
+	_armoury_data = armoury_data
 	_rng = rng
 	roster = rules.adventurers.duplicate()
 	armoury = Armoury.new(armoury_data)
@@ -92,6 +94,57 @@ func advance_board(chosen_quest: QuestData) -> void:
 
 	board = remaining
 	refresh_board()
+
+
+func find_entry(quest: QuestData) -> BoardEntry:
+	for entry: BoardEntry in board:
+		if entry.quest == quest:
+			return entry
+
+	return null
+
+
+func get_scout_cost(entry: BoardEntry) -> int:
+	return roundi(entry.quest.pay * _rules.scout_cost_percent / 100.0)
+
+
+func can_scout(entry: BoardEntry) -> bool:
+	return not entry.scouted and ledger.can_afford(get_scout_cost(entry))
+
+
+func scout(entry: BoardEntry) -> bool:
+	if not can_scout(entry):
+		return false
+
+	ledger.spend_gold(get_scout_cost(entry))
+	entry.scouted = true
+	entry.shown_danger = entry.quest.danger
+	return true
+
+
+func get_scout_report(entry: BoardEntry) -> ScoutReport:
+	var report: ScoutReport = ScoutReport.new()
+	report.true_danger = entry.quest.danger
+
+	for item: ItemData in _armoury_data.items:
+		for tag: String in item.quest_tags:
+			if entry.quest.quest_tags.has(tag):
+				report.helpful_items.append(item)
+				break
+
+	report.suggested_adventurer = _get_suggested_adventurer(entry.quest)
+	return report
+
+
+func _get_suggested_adventurer(quest: QuestData) -> AdventurerData:
+	var available: Array[AdventurerData] = get_available()
+
+	for subclass: String in quest.suggested_subclasses:
+		for adventurer: AdventurerData in available:
+			if adventurer.subclass_title == subclass:
+				return adventurer
+
+	return null
 
 
 func get_passes_left(entry: BoardEntry) -> int:

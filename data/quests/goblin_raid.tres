@@ -20,6 +20,7 @@ pay = 220
 quest_tags = Array[String](["poison"])
 loot_gold_min = 30
 loot_gold_max = 80
+suggested_subclasses = Array[String](["Sentinel", "Evoker"])
 enemy_name = "goblins"
 trap_chance = 30
 round_count = 3

@@ -20,6 +20,7 @@ pay = 320
 quest_tags = Array[String](["heist", "climbing"])
 loot_gold_min = 100
 loot_gold_max = 250
+suggested_subclasses = Array[String](["Thief", "Spy"])
 enemy_name = "vault guards"
 trap_chance = 30
 round_count = 3

@@ -5,6 +5,7 @@ var base_quest: QuestData
 var quest: QuestData
 var shown_danger: int
 var passes: int = 0
+var scouted: bool = false
 
 
 func _init(entry_quest: QuestData, entry_danger: int) -> void:
