@@ -44,17 +44,14 @@ func get_problems() -> PackedStringArray:
 func _add_weapon_problems(problems: PackedStringArray) -> void:
 	var class_title: String = adventurer.class_title
 
-	if main_hand == null:
-		problems.append("%s needs a main weapon." % adventurer.display_name)
-		return
-
-	if not main_hand.main_hand_classes.has(class_title):
+	# No main weapon is allowed: the adventurer fights bare-handed with their own attack.
+	if main_hand != null and not main_hand.main_hand_classes.has(class_title):
 		problems.append("%s can't use %s." % [adventurer.display_name, main_hand.display_name])
 
 	if off_hand == null:
 		return
 
-	if main_hand.two_handed:
+	if main_hand != null and main_hand.two_handed:
 		problems.append("%s needs both weapon slots." % main_hand.display_name)
 
 	if not off_hand.off_hand_classes.has(class_title):
@@ -81,6 +78,20 @@ func _add_accessory_problems(problems: PackedStringArray) -> void:
 				adventurer.display_name,
 				AccessoryData.Slot.keys()[slot].to_lower(),
 			])
+
+
+# Total attack plus total defence of everyone in the party, gear included.
+static func get_party_strength(party: Array[Loadout]) -> int:
+	var strength: int = 0
+
+	for loadout: Loadout in party:
+		strength += loadout.get_total_attack() + loadout.get_total_defence()
+
+	return strength
+
+
+func is_unarmed() -> bool:
+	return main_hand == null
 
 
 func get_all_equipment() -> Array[Resource]:

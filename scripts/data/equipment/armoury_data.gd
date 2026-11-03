@@ -1,7 +1,9 @@
 class_name ArmouryData
 extends Resource
 
-@export_range(1, 10) var base_copies: int = 2
+# What the market sells.
 @export var weapons: Array[WeaponData] = []
 @export var armour: Array[ArmourData] = []
 @export var items: Array[ItemData] = []
+# What a new guild's armoury holds, one entry per copy.
+@export var starting_stock: Array[Resource] = []

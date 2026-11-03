@@ -18,7 +18,7 @@
 script = ExtResource("1_quest")
 display_name = "The Dragon's Lair"
 briefing = "A dragon has claimed the old mine. The pay is excellent. Nobody has yet collected it."
-danger = 5
+rank = 5
 pay = 900
 quest_tags = Array[String](["dark", "climbing"])
 loot_gold_min = 200
@@ -33,4 +33,3 @@ enemy_power = 10
 loot_chance = 70
 loot_rolls = 3
 loot_table = Array[ExtResource("2_acc")]([ExtResource("l0"), ExtResource("l1"), ExtResource("l2"), ExtResource("l3"), ExtResource("l4"), ExtResource("l5"), ExtResource("l6"), ExtResource("l7"), ExtResource("l8"), ExtResource("l9"), ExtResource("l10")])
-min_quests_attempted = 5

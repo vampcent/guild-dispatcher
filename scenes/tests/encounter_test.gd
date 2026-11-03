@@ -24,7 +24,28 @@ func _ready() -> void:
 	check_percent(boss_odds.x, 79, "Dragon's Lair win rate")
 	check_percent(boss_odds.y, 30, "Dragon's Lair deaths per 100 quests")
 	check_relative(boss_odds.z, 4.4, "Dragon's Lair average rounds")
+	_check_unarmed()
 	finish()
+
+
+# Bare hands use the adventurer's own attack, so the same party does clearly worse without weapons.
+func _check_unarmed() -> void:
+	print("--- Unarmed against armed ---")
+	var quest: QuestData = load("res://data/quests/night_watch.tres") as QuestData
+	var unarmed: Array[Loadout] = _load_party(["sentinel", "berserker", "thief"])
+	var armed: Array[Loadout] = _load_party(["sentinel", "berserker", "thief"])
+	var weapons: Array[String] = ["longsword", "greatsword", "short_sword"]
+
+	for index: int in armed.size():
+		armed[index].main_hand = load("res://data/equipment/weapons/%s.tres" % weapons[index]) as WeaponData
+
+	var unarmed_odds: Vector3 = _print_odds(quest, unarmed)
+	var armed_odds: Vector3 = _print_odds(quest, armed)
+	check(
+		armed_odds.x - unarmed_odds.x >= 20,
+		"Weapons add at least 20 points to the win rate (unarmed %d%%, armed %d%%)"
+		% [roundi(unarmed_odds.x), roundi(armed_odds.x)]
+	)
 
 
 func _load_party(ids: Array[String]) -> Array[Loadout]:

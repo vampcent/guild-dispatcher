@@ -7,9 +7,9 @@ var _armoury: Armoury
 
 
 func _ready() -> void:
-	var data: ArmouryData = load("res://data/equipment/armoury.tres") as ArmouryData
+	var data: ArmouryData = make_stocked_armoury_data(2)
 	_armoury = Armoury.new(data)
-	print("Armoury: %d weapon types, %d of each" % [data.weapons.size(), data.base_copies])
+	print("Armoury: %d weapon types, 2 of each" % data.weapons.size())
 
 	check(_check_loadout("sentinel", "longsword", "shield"), "Sentinel can use a longsword and shield")
 	check(_check_loadout("berserker", "greatsword", ""), "Berserker can use a greatsword")
@@ -20,7 +20,11 @@ func _ready() -> void:
 	check(not _check_loadout("evoker", "wand", "dagger"), "Evoker can't use an off-hand dagger")
 	check(not _check_loadout("sentinel", "greatsword", "shield"), "A greatsword needs both hands")
 	check(not _check_loadout("exorcist", "longsword", ""), "Exorcist can't use a longsword")
-	check(not _check_loadout("spy", "", ""), "Spy needs a main weapon")
+	check(not _check_loadout("thief", "greatsword", ""), "Thief can't use a greatsword")
+	check(not _check_loadout("thief", "", "shield"), "An unarmed Thief still can't hold a shield")
+	print("--- Going out unarmed is allowed ---")
+	check(_check_loadout("spy", "", ""), "Spy can go out unarmed")
+	check(_check_loadout("sentinel", "", "shield"), "Sentinel can go out with only a shield")
 
 	var sentinel: Loadout = Loadout.new(
 		_load_adventurer("sentinel"),

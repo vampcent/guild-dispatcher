@@ -105,7 +105,7 @@ func _compare_loot(label: String, ids: Array[String]) -> Vector3i:
 func _check_tiers() -> void:
 	var rules: EncounterRulesData = load("res://data/rules/encounter_rules.tres") as EncounterRulesData
 	var quest: QuestData = load("res://data/quests/dragon_lair.tres") as QuestData
-	var armoury: Armoury = Armoury.new(load("res://data/equipment/armoury.tres") as ArmouryData)
+	var armoury: Armoury = Armoury.new(make_stocked_armoury_data())
 	var party: Array[Loadout] = _make_party(["sentinel", "thief", "evoker", "exorcist"])
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = 1234
@@ -174,7 +174,7 @@ func _check_specials() -> void:
 
 
 func _check_party_wipe() -> void:
-	var armoury: Armoury = Armoury.new(load("res://data/equipment/armoury.tres") as ArmouryData)
+	var armoury: Armoury = Armoury.new(make_stocked_armoury_data())
 	var longsword: WeaponData = load("res://data/equipment/weapons/longsword.tres") as WeaponData
 	var sentinel: AdventurerData = _load_adventurer("sentinel")
 	var party: Array[Loadout] = [Loadout.new(sentinel, longsword)]

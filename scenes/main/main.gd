@@ -152,6 +152,7 @@ func _show_board() -> void:
 	_set_screen(_show_board)
 	_add_label("Quest board", 24)
 	_add_session_status()
+	_add_label(_get_guild_rank_text())
 	_add_label("Gold: %d | Debt: %d / %d | Wages due in %d quests" % [
 		_guild.ledger.gold,
 		_guild.ledger.debt,
@@ -186,11 +187,11 @@ func _show_board() -> void:
 			scouting = "\n%s" % _get_scout_text(entry)
 
 		_add_button(
-			"%s | Danger %d of %d | Pays %d\n%s%s%s" % [
+			"%s | Rank %s | Pays %d | Recommended strength %d\n%s%s%s" % [
 				entry.quest.display_name,
-				entry.shown_danger,
-				_campaign_rules.max_danger,
+				QuestData.get_rank_name(entry.shown_rank),
 				entry.quest.pay,
+				_guild.get_recommended_strength(entry.shown_rank),
 				entry.quest.briefing,
 				pressure,
 				scouting,
@@ -204,6 +205,21 @@ func _show_board() -> void:
 				_on_scout_pressed.bind(entry)
 			)
 			scout_button.disabled = not _guild.can_scout(entry)
+
+
+func _get_guild_rank_text() -> String:
+	var text: String = "Guild rank %s | Reputation %d" % [
+		QuestData.get_rank_name(_guild.get_guild_rank()),
+		_guild.reputation,
+	]
+
+	if _guild.get_next_rank_reputation() >= 0:
+		text += " (rank %s at %d)" % [
+			QuestData.get_rank_name(_guild.get_guild_rank() + 1),
+			_guild.get_next_rank_reputation(),
+		]
+
+	return text
 
 
 func _on_scout_pressed(entry: BoardEntry) -> void:
@@ -224,7 +240,7 @@ func _get_scout_text(entry: BoardEntry) -> String:
 	else:
 		advice += " Nobody fit for duty is especially suited to this."
 
-	return "Scout's report: Danger confirmed. %s" % advice
+	return "Scout's report: Rank %s confirmed. %s" % [QuestData.get_rank_name(report.true_rank), advice]
 
 
 func _show_market() -> void:
@@ -346,6 +362,9 @@ func _fill_weapons(row: PartyRow) -> void:
 			row.off_choices.append(weapon)
 			row.off_option.add_item(weapon.display_name)
 
+	row.main_choices.append(null)
+	row.main_option.add_item("Unarmed")
+
 
 func _fill_armour(row: PartyRow) -> void:
 	row.armour_choices.append(null)
@@ -397,11 +416,7 @@ func _add_option(parent: Control) -> OptionButton:
 
 
 func _make_loadout(row: PartyRow) -> Loadout:
-	var main_hand: WeaponData = null
-
-	if row.main_option.selected >= 0:
-		main_hand = row.main_choices[row.main_option.selected]
-
+	var main_hand: WeaponData = row.main_choices[row.main_option.selected]
 	var accessories: Array[AccessoryData] = []
 
 	for index: int in row.accessory_options.size():
@@ -440,16 +455,31 @@ func _refresh_setup() -> void:
 			loadout = _make_loadout(row)
 
 		row.off_option.disabled = two_handed
-		row.stats_label.text = "ATK %d | DEF %d | SPD %d" % [
+		row.stats_label.text = "ATK %d | DEF %d | SPD %d%s" % [
 			loadout.get_total_attack(),
 			loadout.get_total_defence(),
 			loadout.get_total_speed(),
+			" | Unarmed: fights bare-handed" if loadout.is_unarmed() else "",
 		]
 
 	var party: Array[Loadout] = _get_party()
 	var problems: PackedStringArray = _guild.get_party_problems(party)
+	var notes: PackedStringArray = []
 	_send_button.disabled = not problems.is_empty()
-	_notes_label.text = " ".join(problems)
+
+	var entry: BoardEntry = _guild.find_entry(_quest)
+
+	if not party.is_empty() and entry != null:
+		notes.append("Party strength %d, recommended %d." % [
+			Loadout.get_party_strength(party),
+			_guild.get_recommended_strength(entry.shown_rank),
+		])
+
+		if _guild.is_party_too_weak(party, entry):
+			notes.append("Warning: this party is weaker than recommended.")
+
+	notes.append_array(problems)
+	_notes_label.text = " ".join(notes)
 
 
 func _on_send_pressed() -> void:
@@ -482,6 +512,11 @@ func _show_report(action: Dictionary, outcome: Dictionary) -> void:
 			used.append(item.display_name)
 
 		_add_label("Supplies used: %s" % ", ".join(used))
+
+	if outcome["ranked_up"]:
+		_add_label("The guild has risen to rank %s! Harder quests will reach the board." % (
+			QuestData.get_rank_name(_guild.get_guild_rank())
+		))
 
 	_add_payout_line("Quest pay: +%d gold", payout.pay)
 	_add_payout_line("Loot: +%d gold", payout.loot_gold)
@@ -518,9 +553,10 @@ func _show_history() -> void:
 		_guild.ledger.debt,
 		_economy_rules.debt_limit,
 	])
-	_add_label("Quests attempted: %d | Quests completed: %d" % [
+	_add_label("Quests attempted: %d | Quests completed: %d | Guild rank reached: %s" % [
 		_guild.quests_attempted,
 		_guild.quests_succeeded,
+		QuestData.get_rank_name(_guild.get_guild_rank()),
 	])
 	_add_label("The fallen: %s" % ("None" if _guild.dead.is_empty() else _join_names(_guild.dead)))
 	_add_label("Most famous hero: %s" % _guild.get_most_famous_hero())

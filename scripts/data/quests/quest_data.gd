@@ -1,9 +1,14 @@
 class_name QuestData
 extends Resource
 
+enum Rank { F, E, D, C, B, A, S }
+# Raids and special quests are planned (docs/raids_and_special_quests.md) but play as normal for now.
+enum Kind { NORMAL, RAID, SPECIAL }
+
 @export var display_name: String = ""
 @export_multiline var briefing: String = ""
-@export_range(1, 5) var danger: int = 1
+@export var rank: Rank = Rank.F
+@export var kind: Kind = Kind.NORMAL
 @export var enemy_name: String = ""
 @export var suggested_subclasses: Array[String] = []
 @export_range(0, 10000) var pay: int = 0
@@ -18,4 +23,7 @@ extends Resource
 @export_range(1, 500) var enemy_health: int = 40
 @export_range(0, 10) var enemy_attacks_per_round: int = 2
 @export_range(0, 20) var enemy_power: int = 5
-@export_range(0, 100) var min_quests_attempted: int = 0
+
+
+static func get_rank_name(quest_rank: int) -> String:
+	return Rank.keys()[quest_rank]

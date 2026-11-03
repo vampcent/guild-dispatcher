@@ -11,14 +11,15 @@ The tone is tongue-in-cheek fantasy, inspired by D&D.
 ## What's in the game so far
 
 - **An endless guild:** keep taking quests until your guild fails.
-- **Quest board:** choose from a selection of quests, each with a danger rating, pay and a briefing that hints at what to pack.
+- **Quest board:** choose from a selection of quests, each with a rank from F (odd jobs) to S (legends), pay, a recommended party strength and a briefing that hints at what to pack. Party strength is total attack plus total defence, gear included.
+- **Guild rank:** successful quests earn reputation, which raises the guild from rank F towards S. The board offers quests up to one rank above the guild's own (see `docs/guild_rank.md`), leaning towards harder ranks as quests go by, but easing off again if the roster is weakened.
 - **Round-based encounters:** quests play out unseen in hidden rounds, with an approach stage that can trigger traps.
 - **Six adventurers:** Sentinel, Berserker, Thief, Spy, Evoker and Exorcist.
 - **Abilities:** 9 of a planned 32 class and subclass abilities, including Hold the Line, Fireball and Light Fingers.
-- **Shared armoury:** assign weapons, armour, accessories and supply items before each dispatch. What each adventurer can use depends on their class.
+- **Shared armoury:** assign weapons, armour, accessories and supply items before each dispatch. What each adventurer can use depends on their class. Anyone sent without a weapon fights bare-handed with their own attack, which is a lot weaker.
 - **Loot:** accessories come in five tiers, from common to legendary. Unique and legendary items have special effects.
-- **Scouting:** pay a share of a quest's reward to confirm its danger and learn what to pack and who to send.
-- **Economy:** earn quest pay, buy items, weapons and armour at the market, and pay wages. Fall too far into debt and the guild closes.
+- **Scouting:** pay a share of a quest's reward to confirm its rank and learn what to pack and who to send.
+- **Economy:** a new guild starts with 100 gold and an empty armoury. Earn quest pay, buy items, weapons and armour at the market, and pay wages. Fall too far into debt and the guild closes.
 - **Permanent death:** a second wound in the same quest kills an adventurer. The guild history records the fallen when your guild ends.
 
 ## Getting started
@@ -93,10 +94,11 @@ To add a test, create a scene in `scenes/tests` whose name ends in `_test`, give
 | `armour_test` | Armour trade-offs |
 | `loot_test` | Accessories, item tiers and loot |
 | `economy_test` | Pay, wages, debt and closing the guild |
-| `supplies_test` | Supply items and buying from the market |
+| `supplies_test` | Supply items, buying from the market and a new guild's start |
 | `board_test` | Quests worsening and expiring |
 | `scout_test` | Paying to scout quests |
-| `guild_test` | Quest board, resting, game over and guild history |
+| `guild_test` | Quest ranks, guild rank, board scaling, resting, game over and guild history |
+| `early_game_test` | Hundreds of new guilds played through their first 10 quests by a cautious bot |
 | `report_test` | Written reports |
 | `multiplayer_test` | Join codes, and two players sharing one guild over the network |
 

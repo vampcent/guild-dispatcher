@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="QuestData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/quests/quest_data.gd" id="1_quest"]
+[ext_resource type="Script" path="res://scripts/data/equipment/accessory_data.gd" id="2_acc"]
+[ext_resource type="Resource" path="res://data/equipment/accessories/iron_ring.tres" id="l0"]
+[ext_resource type="Resource" path="res://data/equipment/accessories/worn_cloak.tres" id="l1"]
+[ext_resource type="Resource" path="res://data/equipment/accessories/copper_charm.tres" id="l2"]
+[ext_resource type="Resource" path="res://data/equipment/accessories/cloth_mask.tres" id="l3"]
+
+[resource]
+script = ExtResource("1_quest")
+display_name = "Rats in the Tavern Cellar"
+briefing = "The landlord of the Drowned Rat would like his cellar back from the actual rats. It's dark down there, and the rats know the way around."
+rank = 0
+pay = 55
+quest_tags = Array[String](["dark"])
+loot_gold_min = 0
+loot_gold_max = 15
+suggested_subclasses = Array[String](["Berserker", "Thief"])
+enemy_name = "rats"
+trap_chance = 5
+round_count = 3
+enemy_health = 16
+enemy_attacks_per_round = 1
+enemy_power = 1
+loot_chance = 15
+loot_rolls = 1
+loot_table = Array[ExtResource("2_acc")]([ExtResource("l0"), ExtResource("l1"), ExtResource("l2"), ExtResource("l3")])

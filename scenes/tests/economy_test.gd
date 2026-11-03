@@ -38,17 +38,21 @@ func _ready() -> void:
 	)
 
 	print("--- Debt in the breakdown ---")
-	var indebted: GuildLedger = GuildLedger.new(_rules)
+	# Wages high enough that this payday has to be borrowed for.
+	var steep: EconomyRulesData = _rules.duplicate() as EconomyRulesData
+	steep.wage_per_adventurer = 100
+	var steep_bill: int = ROSTER_SIZE * steep.wage_per_adventurer
+	var indebted: GuildLedger = GuildLedger.new(steep)
 	indebted.gold = 100
 	indebted.debt = 1000
 	indebted.quests_until_wages = 1
 	var loot_result: QuestResult = _make_result(true, false)
 	loot_result.loot_gold = 30
 	var repaid: int = roundi((_quest.pay + 30) * _rules.income_to_debt_percent / 100.0)
-	var shortfall: int = wage_bill - (100 + _quest.pay + 30 - repaid)
+	var shortfall: int = steep_bill - (100 + _quest.pay + 30 - repaid)
 	var borrowed: int = roundi(shortfall * (100 + _rules.loan_interest_percent) / 100.0)
 	payout = _play(indebted, "Success with debt, wages due", loot_result)
-	_check_payout(payout, [_quest.pay, 30, repaid, wage_bill, borrowed], "Success with debt on payday")
+	_check_payout(payout, [_quest.pay, 30, repaid, steep_bill, borrowed], "Success with debt on payday")
 	check_equal(indebted.gold, 0, "Gold runs out when wages cost more than the guild has")
 	check_equal(
 		indebted.debt,
@@ -122,6 +126,7 @@ func _ready() -> void:
 
 	print("--- Everyone dead ---")
 	var empty: GuildLedger = GuildLedger.new(_rules)
+	empty.gold = _rules.recruit_cost
 	print("Can afford a recruit: closed = %s" % empty.is_closed(0))
 	check(not empty.is_closed(0), "A guild with no adventurers stays open if it can recruit")
 	empty.gold = 100

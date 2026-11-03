@@ -7,6 +7,7 @@ var _guest: GuildSession
 var _outcomes: Dictionary[GuildSession, Array] = {}
 var _host_baseline: int = 0
 var _guest_baseline: int = 0
+var _stocked_armoury: ArmouryData = make_stocked_armoury_data()
 
 
 func _check_join_codes() -> void:
@@ -201,10 +202,13 @@ func _make_session(root_name: String) -> GuildSession:
 	root.name = root_name
 	add_child(root)
 	get_tree().set_multiplayer(SceneMultiplayer.new(), root.get_path())
+	# Both players get the same rules: a stocked armoury and enough gold to test purchases.
+	var economy_rules: EconomyRulesData = load("res://data/rules/economy_rules.tres").duplicate()
+	economy_rules.starting_gold = 500
 	var session: GuildSession = GuildSession.new(
 		load("res://data/rules/campaign_rules.tres") as CampaignRulesData,
-		load("res://data/equipment/armoury.tres") as ArmouryData,
-		load("res://data/rules/economy_rules.tres") as EconomyRulesData,
+		_stocked_armoury,
+		economy_rules,
 		load("res://data/rules/encounter_rules.tres") as EncounterRulesData,
 		load("res://data/reports/report_phrases.tres") as ReportPhrasesData
 	)
@@ -258,9 +262,9 @@ func _describe(guild: GuildState) -> String:
 	]
 
 	for entry: BoardEntry in guild.board:
-		parts.append("%s d%d p%d s%s" % [
+		parts.append("%s r%d p%d s%s" % [
 			entry.quest.display_name,
-			entry.shown_danger,
+			entry.shown_rank,
 			entry.passes,
 			entry.scouted,
 		])

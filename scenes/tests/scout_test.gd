@@ -12,7 +12,7 @@ func _ready() -> void:
 	check_equal(cost, roundi(entry.quest.pay * 0.15), "scouting costs 15% of the quest's pay")
 	check(guild.scout(entry), "scouting succeeds when the guild can afford it")
 	check_equal(guild.ledger.gold, gold_before - cost, "scouting takes the cost from gold")
-	check_equal(entry.shown_danger, entry.quest.danger, "scouting confirms the true danger")
+	check_equal(entry.shown_rank, entry.quest.rank, "scouting confirms the true rank")
 	check(not guild.scout(entry), "a quest can only be scouted once")
 	check_equal(guild.ledger.gold, gold_before - cost, "a refused scout costs nothing")
 
@@ -51,12 +51,16 @@ func _make_guild() -> GuildState:
 	var rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
 	var all_quests: CampaignRulesData = rules.duplicate() as CampaignRulesData
 	all_quests.board_size = all_quests.quests.size()
-	return GuildState.new(
+	var guild: GuildState = GuildState.new(
 		all_quests,
 		load("res://data/equipment/armoury.tres") as ArmouryData,
 		load("res://data/rules/economy_rules.tres") as EconomyRulesData,
 		rng
 	)
+	# Famous enough to be offered every quest, so the crypt is on the board.
+	guild.reputation = 1000
+	guild.refresh_board()
+	return guild
 
 
 func _find_entry(guild: GuildState, quest_name: String) -> BoardEntry:

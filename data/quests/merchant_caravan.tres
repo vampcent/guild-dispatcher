@@ -15,7 +15,7 @@
 script = ExtResource("1_quest")
 display_name = "Guard the Merchant Caravan"
 briefing = "The spice merchants pay well for a quiet road. The road is rarely quiet, and the bandits coat their arrows in something nasty."
-danger = 2
+rank = 2
 pay = 210
 quest_tags = Array[String](["poison"])
 loot_gold_min = 30
