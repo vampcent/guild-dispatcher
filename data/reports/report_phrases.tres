@@ -28,5 +28,7 @@ templates = {
 "ITEM_USED": ["{detail}"],
 "GOLD_FOUND": ["The party also turned up {detail} gold in loose change.", "Searching the area turned up {detail} gold."],
 "ABILITY_TRIGGERED": ["{detail}"],
-"COLLATERAL_HIT": ["Unfortunately, {target} was standing in the way."]
+"COLLATERAL_HIT": ["Unfortunately, {target} was standing in the way."],
+"GAME_OVER_ALL_DEAD": ["The last of the adventurers did not come home. The guild hall is very quiet, and the secretary has started packing.", "With nobody left to send, the guild closes its doors. The quest board is taken down and used as firewood.", "Every adventurer on the books is now on the memorial wall. The guild can no longer pretend to be open."],
+"GAME_OVER_DEBT": ["The lender sent some very large men to collect. They took the furniture, the armoury and the sign above the door.", "The guild could not pay what it owed. The lender now owns the building and is turning it into a tavern.", "The debts grew faster than the gold. The guild closes, and the secretary keeps the stapler as severance."]
 }

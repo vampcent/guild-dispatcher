@@ -32,3 +32,17 @@ static func write_report(
 		paragraphs.append(" ".join(sentences))
 
 	return "\n\n".join(paragraphs)
+
+
+static func write_game_over(
+	reason: GuildState.GameOverReason,
+	phrases: ReportPhrasesData,
+	rng: RandomNumberGenerator
+) -> String:
+	var key: String = "GAME_OVER_%s" % GuildState.GameOverReason.keys()[reason]
+	var options: Array = phrases.templates.get(key, [])
+
+	if options.is_empty():
+		return ""
+
+	return options[rng.randi_range(0, options.size() - 1)]
