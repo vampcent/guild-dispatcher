@@ -18,6 +18,7 @@ templates = {
 "BLOW_PARRIED": ["{actor} parried the blow."],
 "TRAP_SPRUNG": ["A trap went off under {target}."],
 "TRAP_SPOTTED": ["{actor} spotted a trap before anyone stepped on it."],
+"SPELL_CAST": ["{actor} put a spell behind the next attack.", "{actor} spent one of the day's spells, and the air started to smell of burnt hair."],
 "WOUND_RECOVERED": ["{actor} tended to {target}, and the wound closed."],
 "SECOND_WIND_USED": ["{actor} caught their breath and shrugged off the wound."],
 "ATTACK_DODGED": ["{target} sidestepped the {detail}.", "{target} ducked at the last moment."],
