@@ -37,11 +37,16 @@ func _start_guild() -> void:
 func _show_board() -> void:
 	_clear_screen()
 	_add_label("Quest board", 24)
-	_add_label("Gold: %d | Debt: %d | Wages due in %d quests" % [
+	_add_label("Gold: %d | Debt: %d / %d | Wages due in %d quests" % [
 		_guild.ledger.gold,
 		_guild.ledger.debt,
+		_economy_rules.debt_limit,
 		_guild.ledger.quests_until_wages,
 	])
+
+	for warning: String in _guild.ledger.get_warnings(_guild.get_living_count()):
+		_add_label("Warning: %s" % warning)
+
 	_add_label("Fit for duty: %s" % _join_names(_guild.get_available()))
 
 	if not _guild.resting.is_empty():
@@ -299,19 +304,14 @@ func _on_send_pressed() -> void:
 		_guild.armoury.get_owned_accessories()
 	)
 	var result: QuestResult = simulator.run()
-	var pay: int = _guild.ledger.get_pay(_quest, result)
-	_guild.finish_quest(_quest, party, result)
-	_show_report(result, pay, gold_before)
+	var payout: QuestPayout = _guild.finish_quest(_quest, party, result)
+	_show_report(result, payout, gold_before)
 
 
-func _show_report(result: QuestResult, pay: int, gold_before: int) -> void:
+func _show_report(result: QuestResult, payout: QuestPayout, gold_before: int) -> void:
 	_clear_screen()
 	_add_label("Report: %s" % _quest.display_name, 24)
-	_add_label("Outcome: %s | Pay: %d gold | Loot: %d gold" % [
-		OUTCOME_NAMES[result.get_outcome()],
-		pay,
-		result.loot_gold,
-	])
+	_add_label("Outcome: %s" % OUTCOME_NAMES[result.get_outcome()])
 	_add_label(ReportWriter.write_report(result.events, _phrases, _rng))
 
 	if not result.injured.is_empty():
@@ -328,8 +328,23 @@ func _show_report(result: QuestResult, pay: int, gold_before: int) -> void:
 
 		_add_label("Supplies used: %s" % ", ".join(used))
 
-	_add_label("Gold: %d to %d | Debt: %d" % [gold_before, _guild.ledger.gold, _guild.ledger.debt])
+	_add_payout_line("Quest pay: +%d gold", payout.pay)
+	_add_payout_line("Loot: +%d gold", payout.loot_gold)
+	_add_payout_line("Paid towards the debt: -%d gold", payout.debt_repaid)
+	_add_payout_line("Wages: -%d gold", payout.wages_paid)
+	_add_payout_line("Borrowed to cover wages: debt +%d gold, with interest", payout.debt_added)
+	_add_label("Gold: %d to %d | Debt: %d / %d" % [
+		gold_before,
+		_guild.ledger.gold,
+		_guild.ledger.debt,
+		_economy_rules.debt_limit,
+	])
 	_add_button("Continue", _on_report_closed)
+
+
+func _add_payout_line(text: String, amount: int) -> void:
+	if amount != 0:
+		_add_label(text % amount)
 
 
 func _on_report_closed() -> void:
