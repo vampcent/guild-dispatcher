@@ -15,9 +15,15 @@ func _ready() -> void:
 
 	_print_round_log(goblins, party)
 	print("--- Results over %d runs ---" % SAMPLE_RUNS)
-	var goblin_wins: int = _print_odds(goblins, party)
-	var boss_wins: int = _print_odds(boss, party)
-	check(goblin_wins > boss_wins, "The goblin raid is won more often than the dragon's lair")
+	var goblin_odds: Vector3 = _print_odds(goblins, party)
+	var boss_odds: Vector3 = _print_odds(boss, party)
+	check(goblin_odds.x > boss_odds.x, "The goblin raid is won more often than the dragon's lair")
+	check_percent(goblin_odds.x, 91, "Goblin Raid win rate")
+	check_percent(goblin_odds.y, 2, "Goblin Raid deaths per 100 quests")
+	check_relative(goblin_odds.z, 2.4, "Goblin Raid average rounds")
+	check_percent(boss_odds.x, 79, "Dragon's Lair win rate")
+	check_percent(boss_odds.y, 30, "Dragon's Lair deaths per 100 quests")
+	check_relative(boss_odds.z, 4.4, "Dragon's Lair average rounds")
 	finish()
 
 
@@ -52,7 +58,7 @@ func _print_round_log(quest: QuestData, party: Array[Loadout]) -> void:
 		])
 
 
-func _print_odds(quest: QuestData, party: Array[Loadout]) -> int:
+func _print_odds(quest: QuestData, party: Array[Loadout]) -> Vector3:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = 1234
 	var wins: int = 0
@@ -83,4 +89,8 @@ func _print_odds(quest: QuestData, party: Array[Loadout]) -> int:
 		quest.round_count,
 	])
 	check_equal(dead_winners, 0, "%s is never won by a dead party" % quest.display_name)
-	return wins
+	return Vector3(
+		100.0 * wins / SAMPLE_RUNS,
+		100.0 * deaths / SAMPLE_RUNS,
+		float(rounds) / SAMPLE_RUNS
+	)

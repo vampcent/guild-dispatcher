@@ -12,7 +12,7 @@ func _ready() -> void:
 		party.append(Loadout.new(load("res://data/characters/adventurers/%s.tres" % id) as AdventurerData))
 
 	_print_sample(party, quest, rules)
-	var all_wins: int = _print_odds("All abilities", party, quest, rules)
+	var all_odds: Vector2 = _print_odds("All abilities", party, quest, rules)
 
 	for ability: AbilityData in rules.abilities:
 		var reduced: EncounterRulesData = rules.duplicate() as EncounterRulesData
@@ -23,8 +23,12 @@ func _ready() -> void:
 
 	var none: EncounterRulesData = rules.duplicate() as EncounterRulesData
 	none.abilities = []
-	var no_wins: int = _print_odds("No abilities", party, quest, none)
-	check(all_wins > no_wins, "Abilities win more quests than no abilities")
+	var no_odds: Vector2 = _print_odds("No abilities", party, quest, none)
+	check(all_odds.x > no_odds.x, "Abilities win more quests than no abilities")
+	check_percent(all_odds.x, 91, "Win rate with all abilities")
+	check_percent(all_odds.y, 2, "Deaths per 100 quests with all abilities")
+	check_percent(no_odds.x, 64, "Win rate with no abilities")
+	check_percent(no_odds.y, 24, "Deaths per 100 quests with no abilities")
 	finish()
 
 
@@ -59,7 +63,7 @@ func _print_odds(
 	party: Array[Loadout],
 	quest: QuestData,
 	rules: EncounterRulesData
-) -> int:
+) -> Vector2:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = 1234
 	var wins: int = 0
@@ -75,4 +79,4 @@ func _print_odds(
 		roundi(100.0 * wins / SAMPLE_RUNS),
 		roundi(100.0 * deaths / SAMPLE_RUNS),
 	])
-	return wins
+	return Vector2(100.0 * wins / SAMPLE_RUNS, 100.0 * deaths / SAMPLE_RUNS)
