@@ -95,6 +95,6 @@ To add a test, create a scene in `scenes/tests` whose name ends in `_test`, give
 5. **Living roster:** hand-crafted characters, quirks, relationships and recruiting
 6. **Report depth:** far more report and quest text, with personality-specific wording
 7. **Wider world:** market, guild upgrades, rival guilds, factions and world events
-8. **Presentation:** secretary art and customisation, plus the final UI
+8. **Presentation:** pixel art for the guild secretary and adventurers, plus the final UI
 
 Stage 3 is in progress. The remaining abilities are being added as the systems they rely on are built.
