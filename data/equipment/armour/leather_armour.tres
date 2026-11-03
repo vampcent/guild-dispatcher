@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ArmourData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/equipment/armour_data.gd" id="1_armour"]
+
+[resource]
+script = ExtResource("1_armour")
+display_name = "Leather Armour"
+defence_bonus = 1
+allowed_classes = Array[String](["Fighter", "Paladin", "Rogue", "Ranger", "Wizard", "Cleric", "Warlock", "Bard"])

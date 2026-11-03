@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EncounterRulesData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/rules/encounter_rules_data.gd" id="1_rules"]
+[ext_resource type="Script" path="res://scripts/data/characters/ability_data.gd" id="2_ability"]
+[ext_resource type="Resource" path="res://data/characters/abilities/hold_the_line.tres" id="a0"]
+[ext_resource type="Resource" path="res://data/characters/abilities/second_wind.tres" id="a1"]
+[ext_resource type="Resource" path="res://data/characters/abilities/keen_eye.tres" id="a2"]
+[ext_resource type="Resource" path="res://data/characters/abilities/spell_slots.tres" id="a3"]
+[ext_resource type="Resource" path="res://data/characters/abilities/healing_prayers.tres" id="a4"]
+[ext_resource type="Resource" path="res://data/characters/abilities/fireball.tres" id="a5"]
+[ext_resource type="Resource" path="res://data/characters/abilities/rage.tres" id="a6"]
+[ext_resource type="Resource" path="res://data/characters/abilities/banish.tres" id="a7"]
+[ext_resource type="Resource" path="res://data/characters/abilities/light_fingers.tres" id="a8"]
+
+[resource]
+script = ExtResource("1_rules")
+abilities = Array[ExtResource("2_ability")]([ExtResource("a0"), ExtResource("a1"), ExtResource("a2"), ExtResource("a3"), ExtResource("a4"), ExtResource("a5"), ExtResource("a6"), ExtResource("a7"), ExtResource("a8")])

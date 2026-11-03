@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AccessoryData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/equipment/accessory_data.gd" id="1_accessory"]
+
+[resource]
+script = ExtResource("1_accessory")
+display_name = "Ring of Fury"
+slot = 2
+rarity = 2
+attack_bonus = 2

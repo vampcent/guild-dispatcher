@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/characters/ability_data.gd" id="1_ability"]
+
+[resource]
+script = ExtResource("1_ability")
+display_name = "Healing Prayers"
+class_title = "Cleric"
+effect = 4
+uses_per_quest = 2
