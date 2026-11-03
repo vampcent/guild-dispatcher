@@ -107,12 +107,7 @@ func _ready() -> void:
 		PackedStringArray(["The armoury only has 0 of Dragonscale Pendant."]),
 		"Armoury problems are reported"
 	)
-	finish()
 
-
-func _make_guild(
-	rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
-) -> GuildState:
 	_check_board()
 	_check_resting()
 	_check_history()
@@ -266,7 +261,9 @@ func _names(adventurers: Array[AdventurerData]) -> PackedStringArray:
 	return names
 
 
-func _make_guild() -> GuildState:
+func _make_guild(
+	rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
+) -> GuildState:
 	return GuildState.new(
 		rules,
 		load("res://data/equipment/armoury.tres") as ArmouryData,
