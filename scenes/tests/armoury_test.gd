@@ -1,6 +1,7 @@
 extends TestCase
 
 const SAMPLE_RUNS: int = 2000
+const EXPECTED_DAMAGE: Dictionary[String, float] = {"bow": 5.9, "crossbow": 7.2}
 
 var _armoury: Armoury
 
@@ -95,7 +96,11 @@ func _compare_ranged() -> void:
 			weapon_id,
 			float(total_damage) / rounds,
 		])
-		check(total_damage > 0, "The %s deals damage" % weapon_id)
+		check_relative(
+			float(total_damage) / rounds,
+			EXPECTED_DAMAGE[weapon_id],
+			"The %s's average damage per round" % weapon_id
+		)
 
 
 func _load_adventurer(id: String) -> AdventurerData:

@@ -2,6 +2,12 @@ extends TestCase
 
 const SAMPLE_RUNS: int = 2000
 const ADVENTURER_IDS: Array[String] = ["sentinel", "thief", "evoker", "exorcist"]
+const EXPECTED_DODGES: Dictionary[String, int] = {
+	"Sentinel": 262,
+	"Thief": 487,
+	"Evoker": 191,
+	"Exorcist": 234,
+}
 
 
 func _ready() -> void:
@@ -30,6 +36,11 @@ func _ready() -> void:
 			adventurer.speed,
 			dodges.get(adventurer.display_name, 0),
 		])
+		check_relative(
+			dodges.get(adventurer.display_name, 0),
+			EXPECTED_DODGES[adventurer.display_name],
+			"%s's dodges" % adventurer.display_name
+		)
 
 	var fastest: AdventurerData = party[0].adventurer
 

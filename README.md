@@ -59,7 +59,7 @@ Two rules keep the project easy to extend:
 
 ## Running the tests
 
-Each test scene runs its checks, prints `PASS` or `FAIL` for each one, then exits with status 1 if any check failed. Tests also run on GitHub for every push and pull request.
+Each test scene runs its checks, printing `ok` or `FAILED` for each one, then ends with a `PASS` or `FAIL n` line and exits with status 1 if any check failed. Tests also run on GitHub for every push and pull request.
 
 **In the editor:** open any scene in `scenes/tests` and press **F6**. The scene closes once its checks finish, and the results stay in the **Output** panel.
 

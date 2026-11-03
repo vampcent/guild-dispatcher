@@ -5,8 +5,15 @@ const SAMPLE_RUNS: int = 2000
 
 func _ready() -> void:
 	_check_equipment()
-	_compare_loot("With Thief", ["sentinel", "thief", "evoker", "exorcist"])
-	_compare_loot("Without Thief or Evoker", ["sentinel", "berserker", "spy", "exorcist"])
+	var thief_loot: Vector3i = _compare_loot("With Thief", ["sentinel", "thief", "evoker", "exorcist"])
+	var other_loot: Vector3i = _compare_loot(
+		"Without Thief or Evoker",
+		["sentinel", "berserker", "spy", "exorcist"]
+	)
+	check_relative(thief_loot.x, 1966, "Accessories found with a Thief and Evoker")
+	check_relative(thief_loot.y, 208, "Accessories pocketed by the Thief")
+	check_relative(thief_loot.z, 522, "Accessories burned by the Evoker")
+	check_relative(other_loot.x, 1112, "Accessories found without a Thief or Evoker")
 	_check_tiers()
 	_check_specials()
 	_check_party_wipe()
@@ -60,7 +67,7 @@ func _describe(loadout: Loadout) -> String:
 	return "allowed" if problems.is_empty() else "REFUSED: %s" % " ".join(problems)
 
 
-func _compare_loot(label: String, ids: Array[String]) -> void:
+func _compare_loot(label: String, ids: Array[String]) -> Vector3i:
 	var rules: EncounterRulesData = load("res://data/rules/encounter_rules.tres") as EncounterRulesData
 	var quest: QuestData = load("res://data/quests/goblin_raid.tres") as QuestData
 	var party: Array[Loadout] = _make_party(ids)
@@ -92,6 +99,7 @@ func _compare_loot(label: String, ids: Array[String]) -> void:
 		(burned > 0) == has_evoker,
 		"%s: loot is burned only when an Evoker is in the party" % label
 	)
+	return Vector3i(found, pocketed, burned)
 
 
 func _check_tiers() -> void:
@@ -118,7 +126,9 @@ func _check_tiers() -> void:
 
 	print("Found by tier: Common %d | Uncommon %d | Rare %d | Unique %d | Legendary %d" % tiers)
 	print("One-of-a-kind duplicates: %d" % duplicates)
-	check(tiers[AccessoryData.Rarity.COMMON] > 0, "Common accessories are found")
+	check_relative(tiers[AccessoryData.Rarity.COMMON], 2270, "Common accessories found")
+	check_relative(tiers[AccessoryData.Rarity.UNCOMMON], 549, "Uncommon accessories found")
+	check_relative(tiers[AccessoryData.Rarity.RARE], 401, "Rare accessories found")
 	check_equal(duplicates, 0, "One-of-a-kind accessories are never found twice")
 
 

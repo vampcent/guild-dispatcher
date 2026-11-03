@@ -57,6 +57,8 @@ func _ready() -> void:
 	var thief_gold: float = _compare_gold("With Thief", ["sentinel", "thief", "evoker", "exorcist"])
 	var other_gold: float = _compare_gold("Without Thief", ["sentinel", "spy", "evoker", "exorcist"])
 	check(thief_gold > other_gold, "A Thief brings back more loot gold")
+	check_relative(thief_gold, 228, "Average loot gold per win with a Thief")
+	check_relative(other_gold, 176, "Average loot gold per win without a Thief")
 	var loot_ledger: GuildLedger = GuildLedger.new(_rules)
 	var loot_result: QuestResult = _make_result(true, false)
 	loot_result.loot_gold = 50

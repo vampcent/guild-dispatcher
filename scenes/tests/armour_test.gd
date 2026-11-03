@@ -2,6 +2,7 @@ extends TestCase
 
 const SAMPLE_RUNS: int = 2000
 const ARMOUR_IDS: Array[String] = ["", "leather_armour", "chain_mail", "plate_armour"]
+const EXPECTED_WOUNDS: Array[int] = [128, 120, 99, 74]
 
 
 func _ready() -> void:
@@ -20,6 +21,13 @@ func _ready() -> void:
 	check(plated.get_total_defence() > bare.get_total_defence(), "Plate armour adds defence")
 	check(plated.get_total_speed() < bare.get_total_speed(), "Plate armour costs speed")
 	check(wounds.back() < wounds.front(), "Plate armour means fewer wounds than no armour")
+
+	for index: int in ARMOUR_IDS.size():
+		check_relative(
+			100.0 * wounds[index] / SAMPLE_RUNS,
+			EXPECTED_WOUNDS[index],
+			"Wounds per 100 quests with %s" % (ARMOUR_IDS[index] if index > 0 else "no armour")
+		)
 
 	var party: Array[Loadout] = [Loadout.new(thief, null, null, plate), Loadout.new(evoker, null, null, plate)]
 	print("Two sets of plate: %s" % _describe(armoury, party))
