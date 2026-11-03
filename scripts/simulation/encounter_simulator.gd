@@ -83,6 +83,8 @@ func _run_loot() -> void:
 			_spend(thief, fingers)
 			break
 
+	_find_gold(thief != null)
+
 	if chance <= 0:
 		return
 
@@ -102,6 +104,19 @@ func _run_loot() -> void:
 		else:
 			_result.found_accessories.append(accessory)
 			_record(QuestEvent.Type.LOOT_FOUND, "", "", accessory.display_name)
+
+
+func _find_gold(has_thief: bool) -> void:
+	if _quest.loot_gold_max <= 0:
+		return
+
+	var gold: int = _rng.randi_range(_quest.loot_gold_min, _quest.loot_gold_max)
+
+	if has_thief:
+		gold += roundi(gold * _rules.thief_gold_percent / 100.0)
+
+	_result.loot_gold = gold
+	_record(QuestEvent.Type.GOLD_FOUND, "", "", str(gold), gold)
 
 
 func _pick_loot() -> AccessoryData:

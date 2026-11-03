@@ -13,4 +13,5 @@ extends Resource
 @export_range(0, 100) var fireball_loot_burn_chance: int = 20
 @export var rarity_weights: Array[int] = [55, 28, 12, 4, 1]
 @export_range(0, 100) var item_damage: int = 10
+@export_range(0, 200) var thief_gold_percent: int = 30
 @export var abilities: Array[AbilityData] = []

@@ -25,7 +25,7 @@ func get_pay(quest: QuestData, result: QuestResult) -> int:
 
 
 func record_quest(quest: QuestData, result: QuestResult, roster_size: int) -> void:
-	_receive(get_pay(quest, result))
+	_receive(get_pay(quest, result) + result.loot_gold)
 	quests_until_wages -= 1
 
 	if quests_until_wages <= 0:

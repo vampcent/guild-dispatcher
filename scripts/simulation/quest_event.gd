@@ -27,6 +27,7 @@ enum Type {
 	LOOT_BURNED,
 	ACCESSORY_TRIGGERED,
 	ITEM_USED,
+	GOLD_FOUND,
 }
 
 var type: Type

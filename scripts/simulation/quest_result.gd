@@ -14,6 +14,7 @@ var injured: Array[AdventurerData] = []
 var dead: Array[AdventurerData] = []
 var found_accessories: Array[AccessoryData] = []
 var used_items: Array[ItemData] = []
+var loot_gold: int = 0
 
 
 func get_outcome() -> Outcome:

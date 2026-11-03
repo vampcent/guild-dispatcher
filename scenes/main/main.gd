@@ -314,7 +314,11 @@ func _on_send_pressed() -> void:
 func _show_report(result: QuestResult, pay: int, gold_before: int) -> void:
 	_clear_screen()
 	_add_label("Report: %s" % _quest.display_name, 24)
-	_add_label("Outcome: %s | Pay: %d gold" % [OUTCOME_NAMES[result.get_outcome()], pay])
+	_add_label("Outcome: %s | Pay: %d gold | Loot: %d gold" % [
+		OUTCOME_NAMES[result.get_outcome()],
+		pay,
+		result.loot_gold,
+	])
 	_add_label(ReportWriter.write_report(result.events, _phrases, _rng))
 
 	if not result.injured.is_empty():

@@ -26,6 +26,7 @@ templates = {
 "LOOT_BURNED": ["What might have been {detail} is now a small pile of ash."],
 "ACCESSORY_TRIGGERED": ["{detail}"],
 "ITEM_USED": ["{detail}"],
+"GOLD_FOUND": ["The party also turned up {detail} gold in loose change.", "Searching the area turned up {detail} gold."],
 "ABILITY_TRIGGERED": ["{detail}"],
 "COLLATERAL_HIT": ["Unfortunately, {target} was standing in the way."]
 }
