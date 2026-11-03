@@ -9,6 +9,7 @@ var resting: Array[AdventurerData] = []
 var armoury: Armoury
 var ledger: GuildLedger
 var board: Array[BoardEntry] = []
+var expired_quests: Array[String] = []
 var quests_attempted: int = 0
 var quests_succeeded: int = 0
 var worst_disaster: String = ""
@@ -58,12 +59,37 @@ func buy_item(item: ItemData) -> bool:
 
 func refresh_board() -> void:
 	var pool: Array[QuestData] = _rules.quests.duplicate()
-	board.clear()
+
+	for entry: BoardEntry in board:
+		pool.erase(entry.base_quest)
 
 	while not pool.is_empty() and board.size() < _rules.board_size:
 		var quest: QuestData = pool[_rng.randi_range(0, pool.size() - 1)]
 		pool.erase(quest)
 		board.append(BoardEntry.new(quest, _get_shown_danger(quest)))
+
+
+func advance_board(chosen_quest: QuestData) -> void:
+	var remaining: Array[BoardEntry] = []
+	expired_quests.clear()
+
+	for entry: BoardEntry in board:
+		if entry.quest == chosen_quest:
+			continue
+
+		entry.worsen(_rules)
+
+		if entry.passes >= _rules.expire_after_passes:
+			expired_quests.append(entry.quest.display_name)
+		else:
+			remaining.append(entry)
+
+	board = remaining
+	refresh_board()
+
+
+func get_passes_left(entry: BoardEntry) -> int:
+	return _rules.expire_after_passes - entry.passes
 
 
 func finish_quest(quest: QuestData, party: Array[Loadout], result: QuestResult) -> void:
@@ -87,7 +113,7 @@ func finish_quest(quest: QuestData, party: Array[Loadout], result: QuestResult) 
 	if get_available().is_empty():
 		resting.clear()
 
-	refresh_board()
+	advance_board(quest)
 
 
 func is_over() -> bool:
