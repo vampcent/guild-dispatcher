@@ -1,7 +1,13 @@
 class_name Loadout
 extends RefCounted
 
-const RING_SLOTS: int = 2
+const ACCESSORY_SLOTS: Array[AccessoryData.Slot] = [
+	AccessoryData.Slot.BACK,
+	AccessoryData.Slot.FACE,
+	AccessoryData.Slot.RING,
+	AccessoryData.Slot.RING,
+	AccessoryData.Slot.NECKLACE,
+]
 
 var adventurer: AdventurerData
 var main_hand: WeaponData
@@ -70,9 +76,7 @@ func _add_accessory_problems(problems: PackedStringArray) -> void:
 		worn[accessory.slot] = worn.get(accessory.slot, 0) + 1
 
 	for slot: AccessoryData.Slot in worn:
-		var limit: int = RING_SLOTS if slot == AccessoryData.Slot.RING else 1
-
-		if worn[slot] > limit:
+		if worn[slot] > ACCESSORY_SLOTS.count(slot):
 			problems.append("%s has too many %s accessories." % [
 				adventurer.display_name,
 				AccessoryData.Slot.keys()[slot].to_lower(),

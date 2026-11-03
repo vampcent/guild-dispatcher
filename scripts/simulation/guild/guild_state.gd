@@ -7,8 +7,6 @@ enum GameOverReason {
 	DEBT,
 }
 
-const MAX_DANGER: int = 5
-
 var roster: Array[AdventurerData] = []
 var dead: Array[AdventurerData] = []
 var resting: Array[AdventurerData] = []
@@ -54,6 +52,21 @@ func get_available() -> Array[AdventurerData]:
 
 func get_living_count() -> int:
 	return roster.size() - dead.size()
+
+
+func get_party_problems(party: Array[Loadout]) -> PackedStringArray:
+	var problems: PackedStringArray = []
+
+	if party.is_empty():
+		problems.append("Pick at least one adventurer.")
+	elif party.size() > _rules.max_party_size:
+		problems.append("A party can have at most %d adventurers." % _rules.max_party_size)
+
+	for loadout: Loadout in party:
+		problems.append_array(loadout.get_problems())
+
+	problems.append_array(armoury.get_problems(party))
+	return problems
 
 
 func buy_item(item: ItemData) -> bool:
@@ -207,4 +220,4 @@ func _get_shown_danger(quest: QuestData) -> int:
 		return quest.danger
 
 	var error: int = -1 if _rng.randi_range(0, 1) == 0 else 1
-	return clampi(quest.danger + error, 1, MAX_DANGER)
+	return clampi(quest.danger + error, 1, _rules.max_danger)

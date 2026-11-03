@@ -67,6 +67,47 @@ func _ready() -> void:
 		"",
 		"An open guild has no game-over line"
 	)
+
+	print("--- Party checks ---")
+	var rules: CampaignRulesData = (
+		load("res://data/rules/campaign_rules.tres").duplicate() as CampaignRulesData
+	)
+	rules.max_party_size = 2
+	var small: GuildState = _make_guild(rules)
+	var party: Array[Loadout] = []
+	check_equal(
+		small.get_party_problems(party),
+		PackedStringArray(["Pick at least one adventurer."]),
+		"An empty party is refused"
+	)
+	party.append(Loadout.new(_load_adventurer("sentinel"), _load_weapon("longsword")))
+	party.append(Loadout.new(_load_adventurer("berserker"), _load_weapon("greatsword")))
+	check(small.get_party_problems(party).is_empty(), "A full party within the rules is accepted")
+	party.append(Loadout.new(_load_adventurer("evoker"), _load_weapon("staff")))
+	check_equal(
+		small.get_party_problems(party),
+		PackedStringArray(["A party can have at most 2 adventurers."]),
+		"The party size limit comes from the campaign rules"
+	)
+
+	var unarmed: Array[Loadout] = [Loadout.new(_load_adventurer("spy"))]
+	check_equal(
+		small.get_party_problems(unarmed),
+		PackedStringArray(["Spy needs a main weapon."]),
+		"Loadout problems are reported"
+	)
+
+	var pendant: AccessoryData = load("res://data/equipment/accessories/dragonscale_pendant.tres")
+	var unowned: Array[AccessoryData] = [pendant]
+	var borrowed: Array[Loadout] = [
+		Loadout.new(_load_adventurer("sentinel"), _load_weapon("longsword"), null, null, unowned),
+	]
+	check_equal(
+		small.get_party_problems(borrowed),
+		PackedStringArray(["The armoury only has 0 of Dragonscale Pendant."]),
+		"Armoury problems are reported"
+	)
+
 	_check_board()
 	_check_resting()
 	_check_history()
@@ -220,10 +261,20 @@ func _names(adventurers: Array[AdventurerData]) -> PackedStringArray:
 	return names
 
 
-func _make_guild() -> GuildState:
+func _make_guild(
+	rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
+) -> GuildState:
 	return GuildState.new(
-		load("res://data/rules/campaign_rules.tres") as CampaignRulesData,
+		rules,
 		load("res://data/equipment/armoury.tres") as ArmouryData,
 		_economy_rules,
 		_rng
 	)
+
+
+func _load_adventurer(id: String) -> AdventurerData:
+	return load("res://data/characters/adventurers/%s.tres" % id) as AdventurerData
+
+
+func _load_weapon(id: String) -> WeaponData:
+	return load("res://data/equipment/weapons/%s.tres" % id) as WeaponData
