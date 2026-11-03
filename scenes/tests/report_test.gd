@@ -15,7 +15,7 @@ func _ready() -> void:
 	var result: QuestResult = EncounterSimulator.new(party, quest, rules, rng).run()
 	var report: String = ReportWriter.write_report(result.events, phrases, rng)
 	print(report)
-	check(report.is_empty(), "The report has text")
+	check(not report.is_empty(), "The report has text")
 	check(not report.contains("{"), "The report has no unfilled placeholders")
 	var names_someone: bool = false
 
