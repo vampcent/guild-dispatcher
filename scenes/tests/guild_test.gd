@@ -107,6 +107,7 @@ func _ready() -> void:
 	)
 
 	_check_board()
+	_check_ranks()
 	_check_escalation()
 	_check_resting()
 	_check_history()
@@ -160,6 +161,66 @@ func _check_board() -> void:
 		expected_wrong / readings,
 		"Share of wrong rank readings"
 	)
+
+
+func _check_ranks() -> void:
+	print("--- Quest ranks ---")
+	var rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
+	check_equal(rules.ranks.size(), QuestData.Rank.size(), "Every rank from F to S has a row")
+
+	for rank: int in range(1, rules.ranks.size()):
+		var lower: QuestRankData = rules.ranks[rank - 1]
+		var higher: QuestRankData = rules.ranks[rank]
+		var name: String = QuestData.get_rank_name(rank)
+		check(higher.min_pay > lower.min_pay, "Rank %s pays more than the rank below" % name)
+		check(
+			higher.recommended_strength > lower.recommended_strength,
+			"Rank %s needs a stronger party than the rank below" % name
+		)
+
+	for quest: QuestData in rules.quests:
+		var row: QuestRankData = rules.ranks[quest.rank]
+		var label: String = "%s (rank %s)" % [quest.display_name, QuestData.get_rank_name(quest.rank)]
+		check(quest.pay >= row.min_pay and quest.pay <= row.max_pay, "%s pays within its rank" % label)
+		check(
+			quest.enemy_power >= row.min_enemy_power and quest.enemy_power <= row.max_enemy_power,
+			"%s faces enemies as strong as its rank says" % label
+		)
+
+	# The same party should win less often as the rank rises.
+	var encounter_rules: EncounterRulesData = (
+		load("res://data/rules/encounter_rules.tres") as EncounterRulesData
+	)
+	var party: Array[Loadout] = [
+		Loadout.new(_load_adventurer("berserker"), _load_weapon("greatsword")),
+		Loadout.new(_load_adventurer("evoker"), _load_weapon("staff")),
+	]
+	var wins: Dictionary[int, int] = {}
+	var runs: Dictionary[int, int] = {}
+
+	for quest: QuestData in rules.quests:
+		for _run: int in 300:
+			var result: QuestResult = EncounterSimulator.new(party, quest, encounter_rules, _rng).run()
+			wins[quest.rank] = wins.get(quest.rank, 0) + (1 if result.succeeded else 0)
+			runs[quest.rank] = runs.get(quest.rank, 0) + 1
+
+	var ranks: Array[int] = runs.keys()
+	ranks.sort()
+	var rates: PackedStringArray = []
+
+	for rank: int in ranks:
+		rates.append("%s %d%%" % [QuestData.get_rank_name(rank), roundi(100.0 * wins[rank] / runs[rank])])
+
+	print("Win rate for a party of strength %d: %s" % [Loadout.get_party_strength(party), ", ".join(rates)])
+
+	for index: int in range(1, ranks.size()):
+		var lower: float = float(wins[ranks[index - 1]]) / runs[ranks[index - 1]]
+		var higher: float = float(wins[ranks[index]]) / runs[ranks[index]]
+		check(
+			higher < lower,
+			"The same party wins less often at rank %s than rank %s"
+			% [QuestData.get_rank_name(ranks[index]), QuestData.get_rank_name(ranks[index - 1])]
+		)
 
 
 func _check_escalation() -> void:
@@ -364,3 +425,4 @@ func _load_adventurer(id: String) -> AdventurerData:
 
 func _load_weapon(id: String) -> WeaponData:
 	return load("res://data/equipment/weapons/%s.tres" % id) as WeaponData
+

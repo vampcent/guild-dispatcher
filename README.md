@@ -11,7 +11,7 @@ The tone is tongue-in-cheek fantasy, inspired by D&D.
 ## What's in the game so far
 
 - **An endless guild:** keep taking quests until your guild fails.
-- **Quest board:** choose from a selection of quests, each with a rank from F (odd jobs) to S (legends), pay and a briefing that hints at what to pack.
+- **Quest board:** choose from a selection of quests, each with a rank from F (odd jobs) to S (legends), pay, a recommended party strength and a briefing that hints at what to pack. Party strength is total attack plus total defence, gear included.
 - **Round-based encounters:** quests play out unseen in hidden rounds, with an approach stage that can trigger traps.
 - **Six adventurers:** Sentinel, Berserker, Thief, Spy, Evoker and Exorcist.
 - **Abilities:** 9 of a planned 32 class and subclass abilities, including Hold the Line, Fireball and Light Fingers.

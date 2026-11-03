@@ -10,3 +10,5 @@ extends Resource
 @export_range(0, 100) var scout_cost_percent: int = 15
 @export var adventurers: Array[AdventurerData] = []
 @export var quests: Array[QuestData] = []
+# One entry per quest rank, from F to S.
+@export var ranks: Array[QuestRankData] = []

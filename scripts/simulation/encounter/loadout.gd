@@ -83,6 +83,16 @@ func _add_accessory_problems(problems: PackedStringArray) -> void:
 			])
 
 
+# Total attack plus total defence of everyone in the party, gear included.
+static func get_party_strength(party: Array[Loadout]) -> int:
+	var strength: int = 0
+
+	for loadout: Loadout in party:
+		strength += loadout.get_total_attack() + loadout.get_total_defence()
+
+	return strength
+
+
 func get_all_equipment() -> Array[Resource]:
 	var equipment: Array[Resource] = []
 

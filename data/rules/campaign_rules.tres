@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/data/rules/campaign_rules_data.gd" id="1_rules"]
 [ext_resource type="Script" path="res://scripts/data/characters/adventurer_data.gd" id="2_adv"]
 [ext_resource type="Script" path="res://scripts/data/quests/quest_data.gd" id="3_quest"]
+[ext_resource type="Script" path="res://scripts/data/quests/quest_rank_data.gd" id="4_rank"]
 [ext_resource type="Resource" path="res://data/characters/adventurers/sentinel.tres" id="a0"]
 [ext_resource type="Resource" path="res://data/characters/adventurers/berserker.tres" id="a1"]
 [ext_resource type="Resource" path="res://data/characters/adventurers/thief.tres" id="a2"]
@@ -20,7 +21,64 @@
 [ext_resource type="Resource" path="res://data/quests/sunken_dungeon.tres" id="q8"]
 [ext_resource type="Resource" path="res://data/quests/bandit_kings_keep.tres" id="q9"]
 
+[sub_resource type="Resource" id="rank_F"]
+script = ExtResource("4_rank")
+min_pay = 20
+max_pay = 90
+min_enemy_power = 0
+max_enemy_power = 2
+recommended_strength = 10
+
+[sub_resource type="Resource" id="rank_E"]
+script = ExtResource("4_rank")
+min_pay = 100
+max_pay = 180
+min_enemy_power = 2
+max_enemy_power = 4
+recommended_strength = 20
+
+[sub_resource type="Resource" id="rank_D"]
+script = ExtResource("4_rank")
+min_pay = 180
+max_pay = 260
+min_enemy_power = 4
+max_enemy_power = 6
+recommended_strength = 30
+
+[sub_resource type="Resource" id="rank_C"]
+script = ExtResource("4_rank")
+min_pay = 260
+max_pay = 400
+min_enemy_power = 5
+max_enemy_power = 7
+recommended_strength = 40
+
+[sub_resource type="Resource" id="rank_B"]
+script = ExtResource("4_rank")
+min_pay = 400
+max_pay = 700
+min_enemy_power = 7
+max_enemy_power = 9
+recommended_strength = 55
+
+[sub_resource type="Resource" id="rank_A"]
+script = ExtResource("4_rank")
+min_pay = 700
+max_pay = 1100
+min_enemy_power = 9
+max_enemy_power = 12
+recommended_strength = 70
+
+[sub_resource type="Resource" id="rank_S"]
+script = ExtResource("4_rank")
+min_pay = 1100
+max_pay = 3000
+min_enemy_power = 11
+max_enemy_power = 20
+recommended_strength = 90
+
 [resource]
 script = ExtResource("1_rules")
 adventurers = Array[ExtResource("2_adv")]([ExtResource("a0"), ExtResource("a1"), ExtResource("a2"), ExtResource("a3"), ExtResource("a4"), ExtResource("a5")])
 quests = Array[ExtResource("3_quest")]([ExtResource("q0"), ExtResource("q1"), ExtResource("q2"), ExtResource("q3"), ExtResource("q4"), ExtResource("q5"), ExtResource("q6"), ExtResource("q7"), ExtResource("q8"), ExtResource("q9")])
+ranks = Array[ExtResource("4_rank")]([SubResource("rank_F"), SubResource("rank_E"), SubResource("rank_D"), SubResource("rank_C"), SubResource("rank_B"), SubResource("rank_A"), SubResource("rank_S")])

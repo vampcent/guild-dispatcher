@@ -69,6 +69,15 @@ func get_party_problems(party: Array[Loadout]) -> PackedStringArray:
 	return problems
 
 
+func get_recommended_strength(rank: int) -> int:
+	return _rules.ranks[rank].recommended_strength
+
+
+# Judged against the rank shown on the board, which may be misread until scouted.
+func is_party_too_weak(party: Array[Loadout], entry: BoardEntry) -> bool:
+	return Loadout.get_party_strength(party) < get_recommended_strength(entry.shown_rank)
+
+
 # Buys one item, weapon or armour for the armoury.
 func buy_equipment(equipment: Resource) -> bool:
 	var price: int = equipment.get("price")

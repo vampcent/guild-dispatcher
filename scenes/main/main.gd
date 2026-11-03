@@ -186,10 +186,11 @@ func _show_board() -> void:
 			scouting = "\n%s" % _get_scout_text(entry)
 
 		_add_button(
-			"%s | Rank %s | Pays %d\n%s%s%s" % [
+			"%s | Rank %s | Pays %d | Recommended strength %d\n%s%s%s" % [
 				entry.quest.display_name,
 				QuestData.get_rank_name(entry.shown_rank),
 				entry.quest.pay,
+				_guild.get_recommended_strength(entry.shown_rank),
 				entry.quest.briefing,
 				pressure,
 				scouting,
@@ -447,8 +448,22 @@ func _refresh_setup() -> void:
 
 	var party: Array[Loadout] = _get_party()
 	var problems: PackedStringArray = _guild.get_party_problems(party)
+	var notes: PackedStringArray = []
 	_send_button.disabled = not problems.is_empty()
-	_notes_label.text = " ".join(problems)
+
+	var entry: BoardEntry = _guild.find_entry(_quest)
+
+	if not party.is_empty() and entry != null:
+		notes.append("Party strength %d, recommended %d." % [
+			Loadout.get_party_strength(party),
+			_guild.get_recommended_strength(entry.shown_rank),
+		])
+
+		if _guild.is_party_too_weak(party, entry):
+			notes.append("Warning: this party is weaker than recommended.")
+
+	notes.append_array(problems)
+	_notes_label.text = " ".join(notes)
 
 
 func _on_send_pressed() -> void:
