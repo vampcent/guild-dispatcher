@@ -88,12 +88,14 @@ func _ready() -> void:
 		"The party size limit comes from the campaign rules"
 	)
 
-	var unarmed: Array[Loadout] = [Loadout.new(_load_adventurer("spy"))]
+	var miswielded: Array[Loadout] = [Loadout.new(_load_adventurer("spy"), _load_weapon("staff"))]
 	check_equal(
-		small.get_party_problems(unarmed),
-		PackedStringArray(["Spy needs a main weapon."]),
+		small.get_party_problems(miswielded),
+		PackedStringArray(["Spy can't use Staff."]),
 		"Loadout problems are reported"
 	)
+	var unarmed: Array[Loadout] = [Loadout.new(_load_adventurer("spy"))]
+	check(small.get_party_problems(unarmed).is_empty(), "An unarmed adventurer can be sent out")
 
 	var pendant: AccessoryData = load("res://data/equipment/accessories/dragonscale_pendant.tres")
 	var unowned: Array[AccessoryData] = [pendant]

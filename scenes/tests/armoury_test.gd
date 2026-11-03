@@ -20,7 +20,11 @@ func _ready() -> void:
 	check(not _check_loadout("evoker", "wand", "dagger"), "Evoker can't use an off-hand dagger")
 	check(not _check_loadout("sentinel", "greatsword", "shield"), "A greatsword needs both hands")
 	check(not _check_loadout("exorcist", "longsword", ""), "Exorcist can't use a longsword")
-	check(not _check_loadout("spy", "", ""), "Spy needs a main weapon")
+	check(not _check_loadout("thief", "greatsword", ""), "Thief can't use a greatsword")
+	check(not _check_loadout("thief", "", "shield"), "An unarmed Thief still can't hold a shield")
+	print("--- Going out unarmed is allowed ---")
+	check(_check_loadout("spy", "", ""), "Spy can go out unarmed")
+	check(_check_loadout("sentinel", "", "shield"), "Sentinel can go out with only a shield")
 
 	var sentinel: Loadout = Loadout.new(
 		_load_adventurer("sentinel"),

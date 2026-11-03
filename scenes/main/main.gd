@@ -346,6 +346,9 @@ func _fill_weapons(row: PartyRow) -> void:
 			row.off_choices.append(weapon)
 			row.off_option.add_item(weapon.display_name)
 
+	row.main_choices.append(null)
+	row.main_option.add_item("Unarmed")
+
 
 func _fill_armour(row: PartyRow) -> void:
 	row.armour_choices.append(null)
@@ -397,11 +400,7 @@ func _add_option(parent: Control) -> OptionButton:
 
 
 func _make_loadout(row: PartyRow) -> Loadout:
-	var main_hand: WeaponData = null
-
-	if row.main_option.selected >= 0:
-		main_hand = row.main_choices[row.main_option.selected]
-
+	var main_hand: WeaponData = row.main_choices[row.main_option.selected]
 	var accessories: Array[AccessoryData] = []
 
 	for index: int in row.accessory_options.size():
@@ -440,10 +439,11 @@ func _refresh_setup() -> void:
 			loadout = _make_loadout(row)
 
 		row.off_option.disabled = two_handed
-		row.stats_label.text = "ATK %d | DEF %d | SPD %d" % [
+		row.stats_label.text = "ATK %d | DEF %d | SPD %d%s" % [
 			loadout.get_total_attack(),
 			loadout.get_total_defence(),
 			loadout.get_total_speed(),
+			" | Unarmed: fights bare-handed" if loadout.is_unarmed() else "",
 		]
 
 	var party: Array[Loadout] = _get_party()

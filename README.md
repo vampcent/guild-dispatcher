@@ -15,7 +15,7 @@ The tone is tongue-in-cheek fantasy, inspired by D&D.
 - **Round-based encounters:** quests play out unseen in hidden rounds, with an approach stage that can trigger traps.
 - **Six adventurers:** Sentinel, Berserker, Thief, Spy, Evoker and Exorcist.
 - **Abilities:** 9 of a planned 32 class and subclass abilities, including Hold the Line, Fireball and Light Fingers.
-- **Shared armoury:** assign weapons, armour, accessories and supply items before each dispatch. What each adventurer can use depends on their class.
+- **Shared armoury:** assign weapons, armour, accessories and supply items before each dispatch. What each adventurer can use depends on their class. Anyone sent without a weapon fights bare-handed with their own attack, which is a lot weaker.
 - **Loot:** accessories come in five tiers, from common to legendary. Unique and legendary items have special effects.
 - **Scouting:** pay a share of a quest's reward to confirm its rank and learn what to pack and who to send.
 - **Economy:** earn quest pay, buy items, weapons and armour at the market, and pay wages. Fall too far into debt and the guild closes.
