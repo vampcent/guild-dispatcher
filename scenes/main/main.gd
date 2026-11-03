@@ -74,7 +74,7 @@ func _show_board() -> void:
 			"%s | Danger %d of %d | Pays %d\n%s%s%s" % [
 				entry.quest.display_name,
 				entry.shown_danger,
-				GuildState.MAX_DANGER,
+				_campaign_rules.max_danger,
 				entry.quest.pay,
 				entry.quest.briefing,
 				pressure,
@@ -152,7 +152,9 @@ func _show_party_setup() -> void:
 	if entry != null and entry.scouted:
 		_add_label(_get_scout_text(entry))
 
-	_add_label("Tick up to 4 adventurers and equip them from the armoury.")
+	_add_label(
+		"Tick up to %d adventurers and equip them from the armoury." % _campaign_rules.max_party_size
+	)
 
 	for adventurer: AdventurerData in _guild.get_available():
 		_add_party_row(adventurer)
@@ -183,11 +185,9 @@ func _add_party_row(adventurer: AdventurerData) -> void:
 
 	var trinkets: HBoxContainer = HBoxContainer.new()
 	_content.add_child(trinkets)
-	_add_accessory_option(row, trinkets, AccessoryData.Slot.BACK)
-	_add_accessory_option(row, trinkets, AccessoryData.Slot.FACE)
-	_add_accessory_option(row, trinkets, AccessoryData.Slot.RING)
-	_add_accessory_option(row, trinkets, AccessoryData.Slot.RING)
-	_add_accessory_option(row, trinkets, AccessoryData.Slot.NECKLACE)
+
+	for slot: AccessoryData.Slot in Loadout.ACCESSORY_SLOTS:
+		_add_accessory_option(row, trinkets, slot)
 
 	row.stats_label = Label.new()
 	_content.add_child(row.stats_label)
@@ -312,24 +312,9 @@ func _refresh_setup() -> void:
 		]
 
 	var party: Array[Loadout] = _get_party()
-	var problems: PackedStringArray = _get_party_problems(party)
+	var problems: PackedStringArray = _guild.get_party_problems(party)
 	_send_button.disabled = not problems.is_empty()
 	_notes_label.text = " ".join(problems)
-
-
-func _get_party_problems(party: Array[Loadout]) -> PackedStringArray:
-	var problems: PackedStringArray = []
-
-	if party.is_empty():
-		problems.append("Pick at least one adventurer.")
-	elif party.size() > 4:
-		problems.append("A party can have at most 4 adventurers.")
-
-	for loadout: Loadout in party:
-		problems.append_array(loadout.get_problems())
-
-	problems.append_array(_guild.armoury.get_problems(party))
-	return problems
 
 
 func _on_send_pressed() -> void:
