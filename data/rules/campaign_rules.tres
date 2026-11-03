@@ -20,6 +20,11 @@
 [ext_resource type="Resource" path="res://data/quests/bandit_hideout.tres" id="q7"]
 [ext_resource type="Resource" path="res://data/quests/sunken_dungeon.tres" id="q8"]
 [ext_resource type="Resource" path="res://data/quests/bandit_kings_keep.tres" id="q9"]
+[ext_resource type="Resource" path="res://data/quests/lost_goat.tres" id="f0"]
+[ext_resource type="Resource" path="res://data/quests/letter_to_thornbury.tres" id="f1"]
+[ext_resource type="Resource" path="res://data/quests/cellar_rats.tres" id="f2"]
+[ext_resource type="Resource" path="res://data/quests/apothecary_herbs.tres" id="f3"]
+[ext_resource type="Resource" path="res://data/quests/cat_in_the_bell_tower.tres" id="f4"]
 
 [sub_resource type="Resource" id="rank_F"]
 script = ExtResource("4_rank")
@@ -80,5 +85,5 @@ recommended_strength = 90
 [resource]
 script = ExtResource("1_rules")
 adventurers = Array[ExtResource("2_adv")]([ExtResource("a0"), ExtResource("a1"), ExtResource("a2"), ExtResource("a3"), ExtResource("a4"), ExtResource("a5")])
-quests = Array[ExtResource("3_quest")]([ExtResource("q0"), ExtResource("q1"), ExtResource("q2"), ExtResource("q3"), ExtResource("q4"), ExtResource("q5"), ExtResource("q6"), ExtResource("q7"), ExtResource("q8"), ExtResource("q9")])
+quests = Array[ExtResource("3_quest")]([ExtResource("q0"), ExtResource("q1"), ExtResource("q2"), ExtResource("q3"), ExtResource("q4"), ExtResource("q5"), ExtResource("q6"), ExtResource("q7"), ExtResource("q8"), ExtResource("q9"), ExtResource("f0"), ExtResource("f1"), ExtResource("f2"), ExtResource("f3"), ExtResource("f4")])
 ranks = Array[ExtResource("4_rank")]([SubResource("rank_F"), SubResource("rank_E"), SubResource("rank_D"), SubResource("rank_C"), SubResource("rank_B"), SubResource("rank_A"), SubResource("rank_S")])

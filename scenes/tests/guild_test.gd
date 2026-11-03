@@ -110,6 +110,7 @@ func _ready() -> void:
 
 	_check_board()
 	_check_ranks()
+	_check_starter_quests()
 	_check_escalation()
 	_check_resting()
 	_check_history()
@@ -225,6 +226,73 @@ func _check_ranks() -> void:
 		)
 
 
+# F-rank jobs are for a brand-new guild: two adventurers with no gear should
+# nearly always manage, and a couple of jobs should pay for a first weapon.
+func _check_starter_quests() -> void:
+	print("--- F-rank starter quests ---")
+	var rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
+	var encounter_rules: EncounterRulesData = (
+		load("res://data/rules/encounter_rules.tres") as EncounterRulesData
+	)
+	var armoury_data: ArmouryData = load("res://data/equipment/armoury.tres") as ArmouryData
+	var starters: Array[QuestData] = []
+
+	for quest: QuestData in rules.quests:
+		if quest.rank == QuestData.Rank.F:
+			starters.append(quest)
+
+	check(starters.size() >= 5, "There are at least 5 F-rank quests (found %d)" % starters.size())
+	var lowest_pay: int = 100000
+
+	for quest: QuestData in starters:
+		lowest_pay = mini(lowest_pay, quest.pay)
+		var wins: int = 0
+		var deaths: int = 0
+		var runs: int = 0
+
+		for first: int in rules.adventurers.size():
+			for second: int in range(first + 1, rules.adventurers.size()):
+				var party: Array[Loadout] = [
+					Loadout.new(rules.adventurers[first]),
+					Loadout.new(rules.adventurers[second]),
+				]
+
+				for _run: int in 100:
+					var result: QuestResult = EncounterSimulator.new(
+						party, quest, encounter_rules, _rng
+					).run()
+					wins += 1 if result.succeeded else 0
+					deaths += result.dead.size()
+					runs += 1
+
+		print("%s: unarmed pairs win %d%%, %.1f deaths per 100 quests" % [
+			quest.display_name,
+			roundi(100.0 * wins / runs),
+			100.0 * deaths / runs,
+		])
+		check_percent(100.0 * wins / runs, 88, "Unarmed pairs win %s about 85-90%% of the time" % quest.display_name)
+		check(100.0 * deaths / runs <= 3.0, "Deaths are rare on %s" % quest.display_name)
+
+	# Every class's cheapest main weapon should be affordable after two starter jobs.
+	var classes: Array[String] = []
+
+	for adventurer: AdventurerData in rules.adventurers:
+		if not classes.has(adventurer.class_title):
+			classes.append(adventurer.class_title)
+
+	for class_title: String in classes:
+		var cheapest: int = 100000
+
+		for weapon: WeaponData in armoury_data.weapons:
+			if weapon.main_hand_classes.has(class_title):
+				cheapest = mini(cheapest, weapon.price)
+
+		check(
+			lowest_pay * 2 >= cheapest,
+			"Two F-rank jobs pay for a %s's cheapest weapon (%d gold)" % [class_title, cheapest]
+		)
+
+
 func _check_escalation() -> void:
 	print("--- Quest pool and escalation ---")
 	var rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
@@ -237,8 +305,15 @@ func _check_escalation() -> void:
 	ranks.sort()
 	check_equal(
 		ranks,
-		[QuestData.Rank.E, QuestData.Rank.D, QuestData.Rank.C, QuestData.Rank.B, QuestData.Rank.A] as Array[int],
-		"The quest pool covers ranks E to A"
+		[
+			QuestData.Rank.F,
+			QuestData.Rank.E,
+			QuestData.Rank.D,
+			QuestData.Rank.C,
+			QuestData.Rank.B,
+			QuestData.Rank.A,
+		] as Array[int],
+		"The quest pool covers ranks F to A"
 	)
 
 	for quest: QuestData in rules.quests:
