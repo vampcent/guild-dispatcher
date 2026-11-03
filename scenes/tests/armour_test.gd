@@ -1,4 +1,4 @@
-extends Node
+extends TestCase
 
 const SAMPLE_RUNS: int = 2000
 const ARMOUR_IDS: Array[String] = ["", "leather_armour", "chain_mail", "plate_armour"]
@@ -10,17 +10,27 @@ func _ready() -> void:
 	var evoker: AdventurerData = load("res://data/characters/adventurers/evoker.tres") as AdventurerData
 	var exorcist: AdventurerData = load("res://data/characters/adventurers/exorcist.tres") as AdventurerData
 	var plate: ArmourData = _load_armour("plate_armour")
+	var wounds: Array[int] = []
 
 	for armour_id: String in ARMOUR_IDS:
-		_compare(thief, _load_armour(armour_id))
+		wounds.append(_compare(thief, _load_armour(armour_id)))
+
+	var bare: Loadout = Loadout.new(thief)
+	var plated: Loadout = Loadout.new(thief, null, null, plate)
+	check(plated.get_total_defence() > bare.get_total_defence(), "Plate armour adds defence")
+	check(plated.get_total_speed() < bare.get_total_speed(), "Plate armour costs speed")
+	check(wounds.back() < wounds.front(), "Plate armour means fewer wounds than no armour")
 
 	var party: Array[Loadout] = [Loadout.new(thief, null, null, plate), Loadout.new(evoker, null, null, plate)]
 	print("Two sets of plate: %s" % _describe(armoury, party))
+	check(armoury.get_problems(party).is_empty(), "The armoury can supply two sets of plate")
 	party.append(Loadout.new(exorcist, null, null, plate))
 	print("Three sets of plate: %s" % _describe(armoury, party))
+	check(not armoury.get_problems(party).is_empty(), "The armoury can't supply three sets of plate")
+	finish()
 
 
-func _compare(adventurer: AdventurerData, armour: ArmourData) -> void:
+func _compare(adventurer: AdventurerData, armour: ArmourData) -> int:
 	var rules: EncounterRulesData = load("res://data/rules/encounter_rules.tres") as EncounterRulesData
 	var quest: QuestData = load("res://data/quests/goblin_raid.tres") as QuestData
 	var loadout: Loadout = Loadout.new(adventurer, null, null, armour)
@@ -44,6 +54,7 @@ func _compare(adventurer: AdventurerData, armour: ArmourData) -> void:
 		loadout.get_total_speed(),
 		roundi(100.0 * wounds / SAMPLE_RUNS),
 	])
+	return wounds
 
 
 func _describe(armoury: Armoury, party: Array[Loadout]) -> String:
