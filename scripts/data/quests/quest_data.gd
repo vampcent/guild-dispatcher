@@ -2,10 +2,13 @@ class_name QuestData
 extends Resource
 
 enum Rank { F, E, D, C, B, A, S }
+# Raids and special quests are planned (docs/raids_and_special_quests.md) but play as normal for now.
+enum Kind { NORMAL, RAID, SPECIAL }
 
 @export var display_name: String = ""
 @export_multiline var briefing: String = ""
 @export var rank: Rank = Rank.F
+@export var kind: Kind = Kind.NORMAL
 @export var enemy_name: String = ""
 @export var suggested_subclasses: Array[String] = []
 @export_range(0, 10000) var pay: int = 0
