@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WeaponData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/weapon_data.gd" id="1_weapon"]
+
+[resource]
+script = ExtResource("1_weapon")
+display_name = "Dagger"
+main_hand_classes = Array[String](["Fighter", "Rogue", "Bard"])
+off_hand_classes = Array[String](["Fighter", "Rogue"])
+attack_bonus = 1
+off_hand_defence_bonus = -1

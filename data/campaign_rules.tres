@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="CampaignRulesData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/campaign_rules_data.gd" id="1_rules"]
+[ext_resource type="Script" path="res://scripts/data/adventurer_data.gd" id="2_adv"]
+[ext_resource type="Script" path="res://scripts/data/quest_data.gd" id="3_quest"]
+[ext_resource type="Resource" path="res://data/adventurers/sentinel.tres" id="a0"]
+[ext_resource type="Resource" path="res://data/adventurers/berserker.tres" id="a1"]
+[ext_resource type="Resource" path="res://data/adventurers/thief.tres" id="a2"]
+[ext_resource type="Resource" path="res://data/adventurers/spy.tres" id="a3"]
+[ext_resource type="Resource" path="res://data/adventurers/evoker.tres" id="a4"]
+[ext_resource type="Resource" path="res://data/adventurers/exorcist.tres" id="a5"]
+[ext_resource type="Resource" path="res://data/quests/goblin_raid.tres" id="q0"]
+[ext_resource type="Resource" path="res://data/quests/restless_crypt.tres" id="q1"]
+[ext_resource type="Resource" path="res://data/quests/dragon_lair.tres" id="q2"]
+[ext_resource type="Resource" path="res://data/quests/counting_house_job.tres" id="q3"]
+
+[resource]
+script = ExtResource("1_rules")
+adventurers = Array[ExtResource("2_adv")]([ExtResource("a0"), ExtResource("a1"), ExtResource("a2"), ExtResource("a3"), ExtResource("a4"), ExtResource("a5")])
+quests = Array[ExtResource("3_quest")]([ExtResource("q0"), ExtResource("q1"), ExtResource("q2"), ExtResource("q3")])

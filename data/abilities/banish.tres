@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AbilityData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/ability_data.gd" id="1_ability"]
+
+[resource]
+script = ExtResource("1_ability")
+display_name = "Banish"
+subclass_title = "Exorcist"
+effect = 7
+uses_per_quest = 2
+power = 8
+required_tag = "undead"
+report_line = "{actor} spoke the rite of banishing, and the {enemies} recoiled."

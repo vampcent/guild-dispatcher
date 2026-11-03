@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/item_data.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+display_name = "Healing Potion"
+price = 75
+heals_wound = true
+report_line = "{actor} drank a healing potion and shook off the wound."

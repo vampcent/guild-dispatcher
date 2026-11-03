@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AdventurerData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/adventurer_data.gd" id="1_adv"]
+
+[resource]
+script = ExtResource("1_adv")
+display_name = "Exorcist"
+class_title = "Cleric"
+subclass_title = "Exorcist"
+role = 3
+attack = 4
+defence = 5
+speed = 3

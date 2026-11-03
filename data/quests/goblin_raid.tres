@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="QuestData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/quest_data.gd" id="1_quest"]
+[ext_resource type="Script" path="res://scripts/data/accessory_data.gd" id="2_acc"]
+[ext_resource type="Resource" path="res://data/accessories/iron_ring.tres" id="l0"]
+[ext_resource type="Resource" path="res://data/accessories/worn_cloak.tres" id="l1"]
+[ext_resource type="Resource" path="res://data/accessories/copper_charm.tres" id="l2"]
+[ext_resource type="Resource" path="res://data/accessories/cloth_mask.tres" id="l3"]
+[ext_resource type="Resource" path="res://data/accessories/silver_ring.tres" id="l4"]
+[ext_resource type="Resource" path="res://data/accessories/hunters_cloak.tres" id="l5"]
+[ext_resource type="Resource" path="res://data/accessories/ring_of_fury.tres" id="l6"]
+[ext_resource type="Resource" path="res://data/accessories/goblin_king_tooth.tres" id="l7"]
+
+[resource]
+script = ExtResource("1_quest")
+display_name = "Goblin Raid"
+briefing = "A few goblins have taken to raiding the farms. Their last victims came home feverish, so pack with care."
+danger = 2
+pay = 220
+quest_tags = Array[String](["poison"])
+enemy_name = "goblins"
+trap_chance = 30
+round_count = 3
+enemy_health = 44
+enemy_attacks_per_round = 2
+enemy_power = 5
+loot_chance = 50
+loot_rolls = 2
+loot_table = Array[ExtResource("2_acc")]([ExtResource("l0"), ExtResource("l1"), ExtResource("l2"), ExtResource("l3"), ExtResource("l4"), ExtResource("l5"), ExtResource("l6"), ExtResource("l7")])
