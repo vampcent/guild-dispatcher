@@ -32,6 +32,15 @@ You'll need [Godot 4.7](https://godotengine.org/download).
 
 To make **F5** start the game, right-click `main.tscn` and choose **Set as Main Scene**.
 
+### Playing with a friend
+
+Two people can run the same guild at once over a local network. You share one pot of gold, one armoury, one roster and one quest board, and either of you can buy supplies, scout, send a party or found a new guild. When a party comes back, you both see the report.
+
+1. One player chooses **Host a game for two**. Their quest board shows the address to join.
+2. The other player types that address on the start screen and chooses **Join**.
+
+The host uses UDP port 7777, so their firewall needs to allow it. To skip the start screen, run the game with `-- --host` or `-- --join=ADDRESS`.
+
 ## Project structure
 
 ```text
@@ -47,6 +56,7 @@ res://
 │   ├── simulation/
 │   │   ├── encounter/     # Running a quest and recording events
 │   │   └── guild/         # Gold, the armoury, the quest board and guild state
+│   ├── multiplayer/       # Keeps one guild in step between two players
 │   └── reports/           # Turns recorded events into written reports
 └── scenes/
     ├── main/              # The playable game and its screens
@@ -88,6 +98,7 @@ To add a test, create a scene in `scenes/tests` whose name ends in `_test`, give
 | `scout_test` | Paying to scout quests |
 | `guild_test` | Quest board, resting, game over and guild history |
 | `report_test` | Written reports |
+| `multiplayer_test` | Two players sharing one guild over the network |
 
 ## Roadmap
 
