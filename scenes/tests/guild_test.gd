@@ -1,5 +1,7 @@
 extends TestCase
 
+const MAX_DANGER: int = 5
+
 var _economy_rules: EconomyRulesData
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
@@ -111,6 +113,160 @@ func _ready() -> void:
 func _make_guild(
 	rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
 ) -> GuildState:
+	_check_board()
+	_check_resting()
+	_check_history()
+	finish()
+
+
+func _check_board() -> void:
+	print("--- Quest board ---")
+	var rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
+	var board_size: int = mini(rules.board_size, rules.quests.size())
+	var full_boards: int = 0
+	var unique_boards: int = 0
+	var readings: int = 0
+	var off_by_one: int = 0
+	var out_of_range: int = 0
+	var wrong: int = 0
+	var expected_wrong: float = 0.0
+
+	for _guild_number: int in 2000:
+		var guild: GuildState = _make_guild()
+		var shown_quests: Array[QuestData] = []
+
+		for entry: BoardEntry in guild.board:
+			if not shown_quests.has(entry.base_quest):
+				shown_quests.append(entry.base_quest)
+
+			var danger: int = entry.quest.danger
+			var error: int = absi(entry.shown_danger - danger)
+			readings += 1
+			off_by_one += 1 if error <= 1 else 0
+			out_of_range += 1 if entry.shown_danger < 1 or entry.shown_danger > MAX_DANGER else 0
+			wrong += 1 if error != 0 else 0
+			# A wrong reading at the edge of the scale is clamped back, so only half show up.
+			var at_edge: bool = danger == 1 or danger == MAX_DANGER
+			expected_wrong += rules.danger_error_chance * (0.5 if at_edge else 1.0)
+
+		full_boards += 1 if guild.board.size() == board_size else 0
+		unique_boards += 1 if shown_quests.size() == guild.board.size() else 0
+
+	check_equal(full_boards, 2000, "Every new board shows %d quests" % board_size)
+	check_equal(unique_boards, 2000, "No board shows the same quest twice")
+	check_equal(off_by_one, readings, "Shown danger is never more than 1 away from the truth")
+	check_equal(out_of_range, 0, "Shown danger stays between 1 and %d" % MAX_DANGER)
+	check_percent(
+		100.0 * wrong / readings,
+		expected_wrong / readings,
+		"Share of wrong danger readings"
+	)
+
+
+func _check_resting() -> void:
+	print("--- Resting ---")
+	var guild: GuildState = _make_guild()
+	var injured: AdventurerData = guild.roster[0]
+	var result: QuestResult = QuestResult.new()
+	result.succeeded = true
+	result.injured.append(injured)
+	guild.finish_quest(guild.board[0].quest, [], result)
+	check(not guild.get_available().has(injured), "An injured adventurer sits out the next quest")
+	check_equal(guild.get_available().size(), guild.roster.size() - 1, "Everyone else is available")
+
+	guild.finish_quest(guild.board[0].quest, [], _make_success())
+	check(guild.get_available().has(injured), "An injured adventurer is back after one quest")
+
+	var nearly: GuildState = _make_guild()
+	result = _make_success()
+	result.injured = nearly.roster.slice(1)
+	nearly.finish_quest(nearly.board[0].quest, [], result)
+	check_equal(
+		_names(nearly.get_available()),
+		_names(nearly.roster.slice(0, 1)),
+		"With one adventurer unhurt, the injured still sit out"
+	)
+
+	var everyone: GuildState = _make_guild()
+	result = _make_success()
+	result.dead = everyone.roster.slice(0, 4)
+	result.injured = everyone.roster.slice(4)
+	everyone.finish_quest(everyone.board[0].quest, [], result)
+	check(everyone.resting.is_empty(), "If every living adventurer is injured, nobody has to rest")
+	check_equal(
+		_names(everyone.get_available()),
+		_names(everyone.roster.slice(4)),
+		"The injured survivors are available again"
+	)
+
+
+func _check_history() -> void:
+	print("--- History stats ---")
+	var guild: GuildState = _make_guild()
+	check_equal(guild.worst_disaster, "", "A new guild has no worst disaster")
+	check_equal(guild.get_most_famous_hero(), "Nobody", "A new guild has no famous hero")
+
+	var rules: CampaignRulesData = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
+	var quests: Array[QuestData] = rules.quests
+	var first: AdventurerData = guild.roster[0]
+	var second: AdventurerData = guild.roster[1]
+	var third: AdventurerData = guild.roster[2]
+
+	var result: QuestResult = _make_success()
+	result.dead.append(guild.roster[5])
+	_add_events(result, QuestEvent.Type.ADVENTURER_HIT, second, 3)
+	_add_events(result, QuestEvent.Type.ADVENTURER_HIT, first, 2)
+	_add_events(result, QuestEvent.Type.ADVENTURER_MISSED, third, 9)
+	guild.finish_quest(quests[0], [], result)
+	check_equal(guild.get_most_famous_hero(), second.display_name, "The hero with most hits is famous")
+
+	result = _make_success()
+	result.dead.append_array([guild.roster[4], guild.roster[3]])
+	_add_events(result, QuestEvent.Type.ADVENTURER_HIT, first, 2)
+	guild.finish_quest(quests[1], [], result)
+	check_equal(guild.get_most_famous_hero(), first.display_name, "Hits add up across quests")
+	check_equal(
+		guild.worst_disaster,
+		quests[1].display_name,
+		"The deadliest quest is the worst disaster"
+	)
+
+	result = _make_success()
+	result.dead.append_array([guild.roster[2], guild.roster[1]])
+	guild.finish_quest(quests[2], [], result)
+	check_equal(
+		guild.worst_disaster,
+		quests[1].display_name,
+		"A later quest with the same deaths doesn't replace the worst disaster"
+	)
+
+
+func _make_success() -> QuestResult:
+	var result: QuestResult = QuestResult.new()
+	result.succeeded = true
+	return result
+
+
+func _add_events(
+	result: QuestResult,
+	type: QuestEvent.Type,
+	adventurer: AdventurerData,
+	count: int
+) -> void:
+	for _event: int in count:
+		result.events.append(QuestEvent.new(type, adventurer.display_name))
+
+
+func _names(adventurers: Array[AdventurerData]) -> PackedStringArray:
+	var names: PackedStringArray = []
+
+	for adventurer: AdventurerData in adventurers:
+		names.append(adventurer.display_name)
+
+	return names
+
+
+func _make_guild() -> GuildState:
 	return GuildState.new(
 		rules,
 		load("res://data/equipment/armoury.tres") as ArmouryData,
