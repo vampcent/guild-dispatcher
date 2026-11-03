@@ -16,28 +16,82 @@ func _ready() -> void:
 	check_equal(ledger.debt, 0, "The guild starts with no debt")
 
 	var gold: int = ledger.gold
-	_play(ledger, "Success", _make_result(true, false))
+	var payout: QuestPayout = _play(ledger, "Success", _make_result(true, false))
 	check_equal(ledger.gold - gold, _quest.pay, "A success earns full pay")
+	_check_payout(payout, [_quest.pay, 0, 0, 0, 0], "Success")
 
 	gold = ledger.gold
-	_play(ledger, "Costly success", _make_result(true, true))
-	check_equal(
-		ledger.gold - gold,
-		roundi(_quest.pay * _rules.costly_pay_percent / 100.0),
-		"A costly success earns reduced pay"
-	)
+	var costly_pay: int = roundi(_quest.pay * _rules.costly_pay_percent / 100.0)
+	payout = _play(ledger, "Costly success", _make_result(true, true))
+	check_equal(ledger.gold - gold, costly_pay, "A costly success earns reduced pay")
+	_check_payout(payout, [costly_pay, 0, 0, 0, 0], "Costly success")
 
 	gold = ledger.gold
-	_play(ledger, "Failure, wages due", _make_result(false, false))
-	check_equal(
-		gold - ledger.gold,
-		ROSTER_SIZE * _rules.wage_per_adventurer,
-		"A failure earns nothing, and wages are paid"
-	)
+	var wage_bill: int = ROSTER_SIZE * _rules.wage_per_adventurer
+	payout = _play(ledger, "Failure, wages due", _make_result(false, false))
+	check_equal(gold - ledger.gold, wage_bill, "A failure earns nothing, and wages are paid")
+	_check_payout(payout, [0, 0, 0, wage_bill, 0], "Failure on payday")
 	check_equal(
 		ledger.quests_until_wages,
 		_rules.quests_between_wages,
 		"The wage countdown restarts after payday"
+	)
+
+	print("--- Debt in the breakdown ---")
+	var indebted: GuildLedger = GuildLedger.new(_rules)
+	indebted.gold = 100
+	indebted.debt = 1000
+	indebted.quests_until_wages = 1
+	var loot_result: QuestResult = _make_result(true, false)
+	loot_result.loot_gold = 30
+	var repaid: int = roundi((_quest.pay + 30) * _rules.income_to_debt_percent / 100.0)
+	var shortfall: int = wage_bill - (100 + _quest.pay + 30 - repaid)
+	var borrowed: int = roundi(shortfall * (100 + _rules.loan_interest_percent) / 100.0)
+	payout = _play(indebted, "Success with debt, wages due", loot_result)
+	_check_payout(payout, [_quest.pay, 30, repaid, wage_bill, borrowed], "Success with debt on payday")
+	check_equal(indebted.gold, 0, "Gold runs out when wages cost more than the guild has")
+	check_equal(
+		indebted.debt,
+		1000 - repaid + borrowed,
+		"Debt drops by the repayment and grows by the loan"
+	)
+
+	print("--- Board warnings ---")
+	var warned: GuildLedger = GuildLedger.new(_rules)
+	var warning_debt: int = roundi(_rules.debt_limit * _rules.debt_warning_percent / 100.0)
+	warned.quests_until_wages = 2
+	warned.gold = 0
+	warned.debt = warning_debt
+	check_equal(
+		warned.get_warnings(ROSTER_SIZE).size(),
+		0,
+		"No warning at exactly the warning share of the limit, with payday not next"
+	)
+	warned.debt = warning_debt + 1
+	check_equal(
+		warned.get_warnings(ROSTER_SIZE).size(),
+		1,
+		"Debt above the warning share of the limit warns the player"
+	)
+	warned.debt = 0
+	warned.quests_until_wages = 1
+	warned.gold = wage_bill
+	check_equal(
+		warned.get_warnings(ROSTER_SIZE).size(),
+		0,
+		"No wage warning when gold covers the wage bill"
+	)
+	warned.gold = wage_bill - 1
+	check_equal(
+		warned.get_warnings(ROSTER_SIZE).size(),
+		1,
+		"Wages due next quest without enough gold warn the player"
+	)
+	warned.debt = warning_debt + 1
+	check_equal(
+		warned.get_warnings(ROSTER_SIZE).size(),
+		2,
+		"Both warnings show together"
 	)
 
 	print("--- A run of bad luck ---")
@@ -60,7 +114,7 @@ func _ready() -> void:
 	check_relative(thief_gold, 228, "Average loot gold per win with a Thief")
 	check_relative(other_gold, 176, "Average loot gold per win without a Thief")
 	var loot_ledger: GuildLedger = GuildLedger.new(_rules)
-	var loot_result: QuestResult = _make_result(true, false)
+	loot_result = _make_result(true, false)
 	loot_result.loot_gold = 50
 	gold = loot_ledger.gold
 	_play(loot_ledger, "Success with 50 loot gold", loot_result)
@@ -100,9 +154,19 @@ func _compare_gold(label: String, ids: Array[String]) -> float:
 	return average
 
 
-func _play(ledger: GuildLedger, label: String, result: QuestResult) -> void:
-	ledger.record_quest(_quest, result, ROSTER_SIZE)
+func _play(ledger: GuildLedger, label: String, result: QuestResult) -> QuestPayout:
+	var payout: QuestPayout = ledger.record_quest(_quest, result, ROSTER_SIZE)
 	_print_state(label, ledger)
+	return payout
+
+
+# Expected order: pay, loot gold, debt repaid, wages paid, debt added.
+func _check_payout(payout: QuestPayout, expected: Array[int], label: String) -> void:
+	check_equal(
+		[payout.pay, payout.loot_gold, payout.debt_repaid, payout.wages_paid, payout.debt_added],
+		expected,
+		"%s breakdown: pay, loot, debt repaid, wages, debt added" % label
+	)
 
 
 func _make_result(succeeded: bool, costly: bool) -> QuestResult:

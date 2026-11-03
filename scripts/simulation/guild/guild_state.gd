@@ -92,10 +92,10 @@ func get_passes_left(entry: BoardEntry) -> int:
 	return _rules.expire_after_passes - entry.passes
 
 
-func finish_quest(quest: QuestData, party: Array[Loadout], result: QuestResult) -> void:
+func finish_quest(quest: QuestData, party: Array[Loadout], result: QuestResult) -> QuestPayout:
 	dead.append_array(result.dead)
 	armoury.apply_result(party, result)
-	ledger.record_quest(quest, result, get_living_count())
+	var payout: QuestPayout = ledger.record_quest(quest, result, get_living_count())
 	resting = result.injured.duplicate()
 	quests_attempted += 1
 
@@ -114,6 +114,7 @@ func finish_quest(quest: QuestData, party: Array[Loadout], result: QuestResult) 
 		resting.clear()
 
 	advance_board(quest)
+	return payout
 
 
 func is_over() -> bool:
