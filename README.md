@@ -52,7 +52,19 @@ Two rules keep the project easy to extend:
 
 ## Running the tests
 
-Open any scene in `scenes/tests`, press **F6**, then check the **Output** panel.
+Each test scene runs its checks, prints `PASS` or `FAIL` for each one, then exits with status 1 if any check failed. Tests also run on GitHub for every push and pull request.
+
+**In the editor:** open any scene in `scenes/tests` and press **F6**. The scene closes once its checks finish, and the results stay in the **Output** panel.
+
+**From the command line:** run every test scene headless with:
+
+```sh
+tools/run_tests.sh
+```
+
+The script uses the `godot` command. If your Godot 4.7 binary has a different name or isn't on your `PATH`, set `GODOT`, for example `GODOT=/path/to/Godot_v4.7.2-stable_linux.x86_64 tools/run_tests.sh`. On Windows, run it from Git Bash and point `GODOT` at the `_console.exe` build so the output shows up. It exits with a non-zero status if any scene fails, hits a script error or runs longer than 300 seconds (change this with `TEST_TIMEOUT`).
+
+To add a test, create a scene in `scenes/tests` whose name ends in `_test`, give it a script that extends `TestCase`, call `check()` or `check_equal()`, and finish with `finish()`.
 
 | Scene | What it checks |
 |---|---|

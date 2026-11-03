@@ -1,4 +1,4 @@
-extends Node
+extends TestCase
 
 const SAMPLE_RUNS: int = 2000
 
@@ -10,12 +10,18 @@ func _ready() -> void:
 	var potion: ItemData = _load_item("healing_potion")
 	var lockpicks: ItemData = _load_item("lockpicks")
 
-	_compare("No items", null, null, quest, rules)
-	_compare("Holy Water helps", holy_water, null, quest, rules)
-	_compare("Lockpicks don't help here", lockpicks, null, quest, rules)
-	_compare("Healing Potion", null, potion, quest, rules)
+	var none: Vector2i = _compare("No items", null, null, quest, rules)
+	var water: Vector2i = _compare("Holy Water helps", holy_water, null, quest, rules)
+	var picks: Vector2i = _compare("Lockpicks don't help here", lockpicks, null, quest, rules)
+	var healing: Vector2i = _compare("Healing Potion", null, potion, quest, rules)
+	check(water.x > none.x, "Holy Water wins more crypt quests")
+	check(water.y > 0, "Holy Water gets used in the crypt")
+	check_equal(picks.y, 0, "Lockpicks never get used in the crypt")
+	check_equal(picks.x, none.x, "Lockpicks don't change the crypt's results")
+	check(healing.y > 0, "Healing Potions get used")
 	_check_stock(holy_water)
 	_check_shop(potion)
+	finish()
 
 
 func _compare(
@@ -24,7 +30,7 @@ func _compare(
 	second_item: ItemData,
 	quest: QuestData,
 	rules: EncounterRulesData
-) -> void:
+) -> Vector2i:
 	var sentinel: AdventurerData = _load_adventurer("sentinel")
 	var evoker: AdventurerData = _load_adventurer("evoker")
 	var party: Array[Loadout] = [
@@ -46,6 +52,7 @@ func _compare(
 		roundi(100.0 * wins / SAMPLE_RUNS),
 		used,
 	])
+	return Vector2i(wins, used)
 
 
 func _check_stock(item: ItemData) -> void:
@@ -53,10 +60,12 @@ func _check_stock(item: ItemData) -> void:
 	var sentinel: AdventurerData = _load_adventurer("sentinel")
 	var party: Array[Loadout] = [Loadout.new(sentinel, null, null, null, [], item)]
 	var result: QuestResult = QuestResult.new()
-	print("Holy Water at the start: %d" % armoury.get_count(item))
+	var stocked: int = armoury.get_count(item)
+	print("Holy Water at the start: %d" % stocked)
 	result.used_items.append(item)
 	armoury.apply_result(party, result)
 	print("Holy Water after using one: %d" % armoury.get_count(item))
+	check_equal(armoury.get_count(item), stocked - 1, "Using Holy Water takes it out of stock")
 
 
 func _check_shop(item: ItemData) -> void:
@@ -67,11 +76,18 @@ func _check_shop(item: ItemData) -> void:
 		load("res://data/economy_rules.tres") as EconomyRulesData,
 		rng
 	)
-	print("Before buying: Gold %d | Potions %d" % [guild.ledger.gold, guild.armoury.get_count(item)])
-	guild.buy_item(item)
+	var gold: int = guild.ledger.gold
+	var stocked: int = guild.armoury.get_count(item)
+	print("Before buying: Gold %d | Potions %d" % [gold, stocked])
+	check(guild.buy_item(item), "The guild can buy a Healing Potion")
 	print("After buying: Gold %d | Potions %d" % [guild.ledger.gold, guild.armoury.get_count(item)])
+	check_equal(guild.ledger.gold, gold - item.price, "Buying a potion costs its price")
+	check_equal(guild.armoury.get_count(item), stocked + 1, "Buying a potion adds it to stock")
 	guild.ledger.gold = 10
-	print("Buying with 10 gold allowed: %s" % guild.buy_item(item))
+	var allowed: bool = guild.buy_item(item)
+	print("Buying with 10 gold allowed: %s" % allowed)
+	check(not allowed, "The guild can't buy a potion with 10 gold")
+	check_equal(guild.ledger.gold, 10, "A refused purchase costs nothing")
 
 
 func _load_adventurer(id: String) -> AdventurerData:

@@ -1,4 +1,4 @@
-extends Node
+extends TestCase
 
 
 func _ready() -> void:
@@ -13,4 +13,14 @@ func _ready() -> void:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = 7
 	var result: QuestResult = EncounterSimulator.new(party, quest, rules, rng).run()
-	print(ReportWriter.write_report(result.events, phrases, rng))
+	var report: String = ReportWriter.write_report(result.events, phrases, rng)
+	print(report)
+	check(not report.is_empty(), "The report has text")
+	check(not report.contains("{"), "The report has no unfilled placeholders")
+	var names_someone: bool = false
+
+	for loadout: Loadout in party:
+		names_someone = names_someone or report.contains(loadout.adventurer.display_name)
+
+	check(names_someone, "The report names someone in the party")
+	finish()

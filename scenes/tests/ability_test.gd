@@ -1,4 +1,4 @@
-extends Node
+extends TestCase
 
 const SAMPLE_RUNS: int = 2000
 
@@ -12,7 +12,7 @@ func _ready() -> void:
 		party.append(Loadout.new(load("res://data/adventurers/%s.tres" % id) as AdventurerData))
 
 	_print_sample(party, quest, rules)
-	_print_odds("All abilities", party, quest, rules)
+	var all_wins: int = _print_odds("All abilities", party, quest, rules)
 
 	for ability: AbilityData in rules.abilities:
 		var reduced: EncounterRulesData = rules.duplicate() as EncounterRulesData
@@ -23,7 +23,9 @@ func _ready() -> void:
 
 	var none: EncounterRulesData = rules.duplicate() as EncounterRulesData
 	none.abilities = []
-	_print_odds("No abilities", party, quest, none)
+	var no_wins: int = _print_odds("No abilities", party, quest, none)
+	check(all_wins > no_wins, "Abilities win more quests than no abilities")
+	finish()
 
 
 func _print_sample(
@@ -57,7 +59,7 @@ func _print_odds(
 	party: Array[Loadout],
 	quest: QuestData,
 	rules: EncounterRulesData
-) -> void:
+) -> int:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = 1234
 	var wins: int = 0
@@ -73,3 +75,4 @@ func _print_odds(
 		roundi(100.0 * wins / SAMPLE_RUNS),
 		roundi(100.0 * deaths / SAMPLE_RUNS),
 	])
+	return wins

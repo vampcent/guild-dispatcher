@@ -1,4 +1,4 @@
-extends Node
+extends TestCase
 
 const SAMPLE_RUNS: int = 2000
 const ADVENTURER_IDS: Array[String] = ["sentinel", "thief", "evoker", "exorcist"]
@@ -30,3 +30,20 @@ func _ready() -> void:
 			adventurer.speed,
 			dodges.get(adventurer.display_name, 0),
 		])
+
+	var fastest: AdventurerData = party[0].adventurer
+
+	for loadout: Loadout in party:
+		if loadout.adventurer.speed > fastest.speed:
+			fastest = loadout.adventurer
+
+	for loadout: Loadout in party:
+		var adventurer: AdventurerData = loadout.adventurer
+
+		if adventurer != fastest:
+			check(
+				dodges.get(fastest.display_name, 0) > dodges.get(adventurer.display_name, 0),
+				"%s dodges more than %s" % [fastest.display_name, adventurer.display_name]
+			)
+
+	finish()
