@@ -85,6 +85,8 @@ To add a test, create a scene in `scenes/tests` whose name ends in `_test`, give
 | `economy_test` | Pay, wages, debt and closing the guild |
 | `supplies_test` | Supply items and buying more |
 | `board_test` | Quests worsening and expiring |
+| `scout_test` | Paying to scout quests |
+| `guild_test` | Quest board, resting, game over and guild history |
 | `report_test` | Written reports |
 
 ## Roadmap
