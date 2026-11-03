@@ -5,6 +5,7 @@ extends Resource
 @export_multiline var briefing: String = ""
 @export_range(1, 5) var danger: int = 1
 @export var enemy_name: String = ""
+@export var suggested_subclasses: Array[String] = []
 @export_range(0, 10000) var pay: int = 0
 @export_range(0, 10000) var loot_gold_min: int = 0
 @export_range(0, 10000) var loot_gold_max: int = 0

@@ -23,6 +23,7 @@ pay = 900
 quest_tags = Array[String](["dark", "climbing"])
 loot_gold_min = 200
 loot_gold_max = 500
+suggested_subclasses = Array[String](["Sentinel", "Evoker"])
 enemy_name = "dragon"
 trap_chance = 40
 round_count = 5

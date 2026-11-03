@@ -62,21 +62,55 @@ func _show_board() -> void:
 
 	for entry: BoardEntry in _guild.board:
 		var pressure: String = ""
+		var scouting: String = ""
 
 		if entry.passes > 0:
 			pressure = "\nThe situation is getting worse. Expires in %d quests." % _guild.get_passes_left(entry)
 
+		if entry.scouted:
+			scouting = "\n%s" % _get_scout_text(entry)
+
 		_add_button(
-			"%s | Danger %d of %d | Pays %d\n%s%s" % [
+			"%s | Danger %d of %d | Pays %d\n%s%s%s" % [
 				entry.quest.display_name,
 				entry.shown_danger,
 				GuildState.MAX_DANGER,
 				entry.quest.pay,
 				entry.quest.briefing,
 				pressure,
+				scouting,
 			],
 			_on_quest_chosen.bind(entry.quest)
 		)
+
+		if not entry.scouted:
+			var scout_button: Button = _add_button(
+				"Scout %s for %d gold" % [entry.quest.display_name, _guild.get_scout_cost(entry)],
+				_on_scout_pressed.bind(entry)
+			)
+			scout_button.disabled = not _guild.can_scout(entry)
+
+
+func _on_scout_pressed(entry: BoardEntry) -> void:
+	_guild.scout(entry)
+	_show_board()
+
+
+func _get_scout_text(entry: BoardEntry) -> String:
+	var report: ScoutReport = _guild.get_scout_report(entry)
+	var items: PackedStringArray = []
+
+	for item: ItemData in report.helpful_items:
+		items.append(item.display_name)
+
+	var advice: String = "Worth packing: %s." % ", ".join(items)
+
+	if report.suggested_adventurer != null:
+		advice += " Suggested: %s." % report.suggested_adventurer.display_name
+	else:
+		advice += " Nobody fit for duty is especially suited to this."
+
+	return "Scout's report: Danger confirmed. %s" % advice
 
 
 func _show_supplies() -> void:
@@ -113,6 +147,11 @@ func _show_party_setup() -> void:
 	_rows.clear()
 	_add_label("Party setup: %s" % _quest.display_name, 24)
 	_add_label(_quest.briefing)
+	var entry: BoardEntry = _guild.find_entry(_quest)
+
+	if entry != null and entry.scouted:
+		_add_label(_get_scout_text(entry))
+
 	_add_label("Tick up to 4 adventurers and equip them from the armoury.")
 
 	for adventurer: AdventurerData in _guild.get_available():

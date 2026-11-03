@@ -19,6 +19,7 @@ danger = 3
 pay = 280
 loot_gold_min = 40
 loot_gold_max = 100
+suggested_subclasses = Array[String](["Exorcist", "Sentinel"])
 enemy_name = "restless dead"
 quest_tags = Array[String](["undead", "dark"])
 trap_chance = 25
