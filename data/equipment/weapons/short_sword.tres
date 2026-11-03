@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1_weapon")
 display_name = "Short Sword"
+price = 60
 main_hand_classes = Array[String](["Fighter", "Rogue", "Ranger", "Bard"])
 off_hand_classes = Array[String](["Fighter", "Rogue", "Ranger"])
 attack_bonus = 2

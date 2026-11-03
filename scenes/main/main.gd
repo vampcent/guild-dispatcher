@@ -128,7 +128,7 @@ func _describe(action: Dictionary) -> String:
 	var who: String = _session.get_player_name(action.get("player"))
 
 	if action.get("type") == "buy":
-		return "%s bought %s." % [who, (load(action["item"]) as ItemData).display_name]
+		return "%s bought %s." % [who, load(action["equipment"]).get("display_name")]
 
 	return "%s paid to scout %s." % [who, (load(action["quest"]) as QuestData).display_name]
 
@@ -163,7 +163,7 @@ func _show_board() -> void:
 	if not _guild.expired_quests.is_empty():
 		_add_label("Contracts lost while you were busy: %s" % ", ".join(_guild.expired_quests))
 
-	_add_button("Buy supplies", _show_supplies)
+	_add_button("Visit the market", _show_market)
 
 	for entry: BoardEntry in _guild.board:
 		var pressure: String = ""
@@ -217,28 +217,35 @@ func _get_scout_text(entry: BoardEntry) -> String:
 	return "Scout's report: Danger confirmed. %s" % advice
 
 
-func _show_supplies() -> void:
-	_set_screen(_show_supplies)
-	_add_label("Supplies", 24)
+func _show_market() -> void:
+	_set_screen(_show_market)
+	_add_label("Market", 24)
 	_add_session_status()
 	_add_label("Gold: %d" % _guild.ledger.gold)
-
-	for item: ItemData in _armoury_data.items:
-		var button: Button = _add_button(
-			"Buy %s for %d gold (you have %d)" % [
-				item.display_name,
-				item.price,
-				_guild.armoury.get_count(item),
-			],
-			_on_buy_pressed.bind(item)
-		)
-		button.disabled = not _guild.ledger.can_afford(item.price)
-
+	_add_market_section("Items", _armoury_data.items)
+	_add_market_section("Weapons", _armoury_data.weapons)
+	_add_market_section("Armour", _armoury_data.armour)
 	_add_button("Back to the board", _show_board)
 
 
-func _on_buy_pressed(item: ItemData) -> void:
-	_session.buy_item(item)
+func _add_market_section(title: String, stock: Array) -> void:
+	_add_label(title, 18)
+
+	for equipment: Resource in stock:
+		var price: int = equipment.get("price")
+		var button: Button = _add_button(
+			"Buy %s for %d gold (you have %d)" % [
+				equipment.get("display_name"),
+				price,
+				_guild.armoury.get_count(equipment),
+			],
+			_on_buy_pressed.bind(equipment)
+		)
+		button.disabled = not _guild.ledger.can_afford(price)
+
+
+func _on_buy_pressed(equipment: Resource) -> void:
+	_session.buy_equipment(equipment)
 
 
 func _on_quest_chosen(quest: QuestData) -> void:

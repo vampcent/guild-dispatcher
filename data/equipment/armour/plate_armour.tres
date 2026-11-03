@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1_armour")
 display_name = "Plate Armour"
+price = 200
 weight = 2
 defence_bonus = 5
 speed_penalty = 2

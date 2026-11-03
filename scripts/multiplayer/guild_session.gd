@@ -101,8 +101,8 @@ func get_player_name(player_id: int) -> String:
 	return "The host" if player_id == 1 else "Your partner"
 
 
-func buy_item(item: ItemData) -> void:
-	_request({"type": "buy", "item": item.resource_path})
+func buy_equipment(equipment: Resource) -> void:
+	_request({"type": "buy", "equipment": equipment.resource_path})
 
 
 func scout(entry: BoardEntry) -> void:
@@ -213,9 +213,9 @@ func _apply(action: Dictionary) -> Dictionary:
 			_reset(action["seed"])
 			return outcome
 		"buy":
-			var item: ItemData = _load(action.get("item")) as ItemData
+			var equipment: Resource = _load(action.get("equipment"))
 
-			if item == null or not guild.buy_item(item):
+			if not _is_sold_at_market(equipment) or not guild.buy_equipment(equipment):
 				outcome["error"] = "The guild can't afford that any more."
 		"scout":
 			var entry: BoardEntry = _find_entry(action.get("quest"))
@@ -299,6 +299,10 @@ func _load(path: Variant) -> Resource:
 		return load(path)
 
 	return null
+
+
+func _is_sold_at_market(equipment: Resource) -> bool:
+	return equipment is ItemData or equipment is WeaponData or equipment is ArmourData
 
 
 func _path_of(resource: Resource) -> String:

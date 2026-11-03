@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1_weapon")
 display_name = "Greatsword"
+price = 120
 main_hand_classes = Array[String](["Fighter"])
 off_hand_classes = Array[String]([])
 two_handed = true

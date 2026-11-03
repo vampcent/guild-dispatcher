@@ -5,5 +5,6 @@
 [resource]
 script = ExtResource("1_armour")
 display_name = "Leather Armour"
+price = 60
 defence_bonus = 1
 allowed_classes = Array[String](["Fighter", "Paladin", "Rogue", "Ranger", "Wizard", "Cleric", "Warlock", "Bard"])

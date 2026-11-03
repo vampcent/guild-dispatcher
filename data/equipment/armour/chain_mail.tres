@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1_armour")
 display_name = "Chain Mail"
+price = 120
 weight = 1
 defence_bonus = 3
 speed_penalty = 1

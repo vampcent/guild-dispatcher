@@ -25,6 +25,9 @@ func _ready() -> void:
 	check_relative(healing.y, 474, "Healing Potions used")
 	_check_stock(holy_water)
 	_check_shop(potion)
+	_check_shop(load("res://data/equipment/weapons/longsword.tres") as WeaponData)
+	_check_shop(load("res://data/equipment/armour/plate_armour.tres") as ArmourData)
+	_check_prices()
 	finish()
 
 
@@ -72,7 +75,7 @@ func _check_stock(item: ItemData) -> void:
 	check_equal(armoury.get_count(item), stocked - 1, "Using Holy Water takes it out of stock")
 
 
-func _check_shop(item: ItemData) -> void:
+func _check_shop(equipment: Resource) -> void:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	var guild: GuildState = GuildState.new(
 		load("res://data/rules/campaign_rules.tres") as CampaignRulesData,
@@ -80,18 +83,45 @@ func _check_shop(item: ItemData) -> void:
 		load("res://data/rules/economy_rules.tres") as EconomyRulesData,
 		rng
 	)
+	var item_name: String = equipment.get("display_name")
+	var price: int = equipment.get("price")
 	var gold: int = guild.ledger.gold
-	var stocked: int = guild.armoury.get_count(item)
-	print("Before buying: Gold %d | Potions %d" % [gold, stocked])
-	check(guild.buy_item(item), "The guild can buy a Healing Potion")
-	print("After buying: Gold %d | Potions %d" % [guild.ledger.gold, guild.armoury.get_count(item)])
-	check_equal(guild.ledger.gold, gold - item.price, "Buying a potion costs its price")
-	check_equal(guild.armoury.get_count(item), stocked + 1, "Buying a potion adds it to stock")
-	guild.ledger.gold = 10
-	var allowed: bool = guild.buy_item(item)
-	print("Buying with 10 gold allowed: %s" % allowed)
-	check(not allowed, "The guild can't buy a potion with 10 gold")
-	check_equal(guild.ledger.gold, 10, "A refused purchase costs nothing")
+	var stocked: int = guild.armoury.get_count(equipment)
+	print("Before buying: Gold %d | %s %d" % [gold, item_name, stocked])
+	check(guild.buy_equipment(equipment), "The guild can buy %s" % item_name)
+	print("After buying: Gold %d | %s %d" % [
+		guild.ledger.gold,
+		item_name,
+		guild.armoury.get_count(equipment),
+	])
+	check_equal(guild.ledger.gold, gold - price, "Buying %s costs its price" % item_name)
+	check_equal(
+		guild.armoury.get_count(equipment),
+		stocked + 1,
+		"Buying %s adds it to stock" % item_name
+	)
+	guild.ledger.gold = price - 1
+	check(
+		not guild.buy_equipment(equipment),
+		"The guild can't buy %s with 1 gold too little" % item_name
+	)
+	check_equal(guild.ledger.gold, price - 1, "A refused purchase of %s costs nothing" % item_name)
+	check_equal(
+		guild.armoury.get_count(equipment),
+		stocked + 1,
+		"A refused purchase of %s adds nothing to stock" % item_name
+	)
+
+
+func _check_prices() -> void:
+	var data: ArmouryData = load("res://data/equipment/armoury.tres") as ArmouryData
+	var free: PackedStringArray = []
+
+	for equipment: Resource in data.items + data.weapons + data.armour:
+		if equipment.get("price") <= 0:
+			free.append(equipment.get("display_name"))
+
+	check_equal(free, PackedStringArray(), "Everything in the market has a price")
 
 
 func _load_adventurer(id: String) -> AdventurerData:

@@ -17,7 +17,7 @@ func _ready() -> void:
 	var item: ItemData = _first_item()
 
 	print("--- Joining late ---")
-	_host.buy_item(item)
+	_host.buy_equipment(item)
 	_host.scout(_host.guild.board[0])
 	_guest = _make_session("Guest")
 	check_equal(_guest.join("127.0.0.1", port), OK, "The guest starts connecting")
@@ -27,7 +27,7 @@ func _ready() -> void:
 
 	print("--- Both players have equal control ---")
 	var gold: int = _host.guild.ledger.gold
-	await _act(func() -> void: _guest.buy_item(item))
+	await _act(func() -> void: _guest.buy_equipment(item))
 	check_equal(
 		_host.guild.ledger.gold,
 		gold - item.price,
@@ -51,12 +51,12 @@ func _ready() -> void:
 
 	print("--- Conflicts ---")
 	while _host.guild.ledger.gold >= item.price * 2:
-		await _act(func() -> void: _host.buy_item(item))
+		await _act(func() -> void: _host.buy_equipment(item))
 
 	gold = _host.guild.ledger.gold
 	_mark()
-	_host.buy_item(item)
-	_guest.buy_item(item)
+	_host.buy_equipment(item)
+	_guest.buy_equipment(item)
 	await _wait_until(_both_applied.bind(2))
 	check_equal(
 		_host.guild.ledger.gold,

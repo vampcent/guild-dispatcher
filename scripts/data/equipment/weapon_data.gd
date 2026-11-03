@@ -2,6 +2,7 @@ class_name WeaponData
 extends Resource
 
 @export var display_name: String = ""
+@export_range(0, 10000) var price: int = 0
 @export var main_hand_classes: Array[String] = []
 @export var off_hand_classes: Array[String] = []
 @export var two_handed: bool = false
