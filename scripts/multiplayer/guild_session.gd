@@ -10,6 +10,7 @@ signal started
 signal action_applied(action: Dictionary, outcome: Dictionary)
 signal players_changed
 signal connection_lost(message: String)
+signal online_status_changed
 
 const DEFAULT_PORT: int = 7777
 const MAX_GUESTS: int = 1
@@ -19,6 +20,10 @@ const TIMEOUT_MAX_MS: int = 8000
 
 var guild: GuildState
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+# While hosting: the code for partners on the internet, or why there isn't one.
+# Both are empty while the router is still being asked.
+var online_code: String = ""
+var online_problem: String = ""
 
 var _campaign_rules: CampaignRulesData
 var _armoury_data: ArmouryData
@@ -27,6 +32,9 @@ var _encounter_rules: EncounterRulesData
 var _phrases: ReportPhrasesData
 var _log: Array = []
 var _seed: int = 0
+var _router: UPNP
+var _router_thread: Thread
+var _port: int = DEFAULT_PORT
 
 
 func _init(
@@ -58,7 +66,8 @@ func play_alone() -> void:
 	started.emit()
 
 
-func host(port: int = DEFAULT_PORT) -> Error:
+# With open_router, also asks the home router to let partners on the internet in.
+func host(port: int = DEFAULT_PORT, open_router: bool = true) -> Error:
 	var peer: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
 	var error: Error = peer.create_server(port, MAX_GUESTS)
 
@@ -66,6 +75,14 @@ func host(port: int = DEFAULT_PORT) -> Error:
 		return error
 
 	multiplayer.multiplayer_peer = peer
+	_port = port
+	online_code = ""
+	online_problem = "" if open_router else "Online play wasn't requested."
+
+	if open_router and _router_thread == null:
+		_router_thread = Thread.new()
+		_router_thread.start(_open_router.bind(port))
+
 	_reset(randi())
 	started.emit()
 	return OK
@@ -84,6 +101,15 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 
 func leave() -> void:
 	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+	_close_router()
+
+
+func _exit_tree() -> void:
+	if _router_thread != null:
+		_router_thread.wait_to_finish()
+		_router_thread = null
+
+	_close_router()
 
 
 func is_online() -> bool:
@@ -183,6 +209,47 @@ func _on_peer_connected(peer_id: int) -> void:
 		_receive_guild.rpc_id(peer_id, _seed, _log)
 
 	players_changed.emit()
+
+
+# Runs on a separate thread, because finding the router can take a few seconds.
+func _open_router(port: int) -> void:
+	var router: UPNP = UPNP.new()
+	var address: String = ""
+	var problem: String = ""
+
+	if router.discover(2000, 2, "InternetGatewayDevice") != UPNP.UPNP_RESULT_SUCCESS \
+			or router.get_gateway() == null or not router.get_gateway().is_valid_gateway():
+		problem = "your router didn't answer, so it may have UPnP turned off"
+	elif router.add_port_mapping(port, port, "Guild Dispatcher", "UDP") != UPNP.UPNP_RESULT_SUCCESS:
+		problem = "your router wouldn't open port %d" % port
+	else:
+		address = router.query_external_address()
+
+		if not JoinCode.is_public(address):
+			router.delete_port_mapping(port, "UDP")
+			problem = "your internet provider shares one address between customers"
+
+	_on_router_answered.call_deferred(router if problem.is_empty() else null, address, problem)
+
+
+func _on_router_answered(router: UPNP, address: String, problem: String) -> void:
+	_router_thread.wait_to_finish()
+	_router_thread = null
+	_router = router
+
+	if not is_online() or not multiplayer.is_server():
+		_close_router()
+		return
+
+	online_code = JoinCode.encode(address) if problem.is_empty() else ""
+	online_problem = problem
+	online_status_changed.emit()
+
+
+func _close_router() -> void:
+	if _router != null:
+		_router.delete_port_mapping(_port, "UDP")
+		_router = null
 
 
 func _shorten_timeout(peer_id: int) -> void:
