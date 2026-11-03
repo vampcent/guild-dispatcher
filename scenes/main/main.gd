@@ -4,22 +4,6 @@ const OUTCOME_NAMES: Array[String] = ["Success", "Costly success", "Failure"]
 const SLOT_LABELS: Array[String] = ["No back item", "No face item", "No ring", "No necklace"]
 
 
-class PartyRow:
-	var adventurer: AdventurerData
-	var check_box: CheckBox
-	var main_option: OptionButton
-	var off_option: OptionButton
-	var armour_option: OptionButton
-	var stats_label: Label
-	var main_choices: Array[WeaponData] = []
-	var off_choices: Array[WeaponData] = []
-	var armour_choices: Array[ArmourData] = []
-	var item_option: OptionButton
-	var item_choices: Array[ItemData] = []
-	var accessory_options: Array[OptionButton] = []
-	var accessory_choices: Array[Array] = []
-
-
 var _campaign_rules: CampaignRulesData
 var _armoury_data: ArmouryData
 var _economy_rules: EconomyRulesData
@@ -36,11 +20,11 @@ var _send_button: Button
 
 
 func _ready() -> void:
-	_campaign_rules = load("res://data/campaign_rules.tres") as CampaignRulesData
-	_armoury_data = load("res://data/armoury.tres") as ArmouryData
-	_economy_rules = load("res://data/economy_rules.tres") as EconomyRulesData
-	_encounter_rules = load("res://data/encounter_rules.tres") as EncounterRulesData
-	_phrases = load("res://data/report_phrases.tres") as ReportPhrasesData
+	_campaign_rules = load("res://data/rules/campaign_rules.tres") as CampaignRulesData
+	_armoury_data = load("res://data/equipment/armoury.tres") as ArmouryData
+	_economy_rules = load("res://data/rules/economy_rules.tres") as EconomyRulesData
+	_encounter_rules = load("res://data/rules/encounter_rules.tres") as EncounterRulesData
+	_phrases = load("res://data/reports/report_phrases.tres") as ReportPhrasesData
 	_rng.randomize()
 	_start_guild()
 
@@ -66,16 +50,25 @@ func _show_board() -> void:
 	if not _guild.dead.is_empty():
 		_add_label("Lost: %s" % _join_names(_guild.dead))
 
+	if not _guild.expired_quests.is_empty():
+		_add_label("Contracts lost while you were busy: %s" % ", ".join(_guild.expired_quests))
+
 	_add_button("Buy supplies", _show_supplies)
 
 	for entry: BoardEntry in _guild.board:
+		var pressure: String = ""
+
+		if entry.passes > 0:
+			pressure = "\nThe situation is getting worse. Expires in %d quests." % _guild.get_passes_left(entry)
+
 		_add_button(
-			"%s | Danger %d of %d | Pays %d\n%s" % [
+			"%s | Danger %d of %d | Pays %d\n%s%s" % [
 				entry.quest.display_name,
 				entry.shown_danger,
 				GuildState.MAX_DANGER,
 				entry.quest.pay,
 				entry.quest.briefing,
+				pressure,
 			],
 			_on_quest_chosen.bind(entry.quest)
 		)

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AdventurerData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/characters/adventurer_data.gd" id="1_adv"]
+
+[resource]
+script = ExtResource("1_adv")
+display_name = "Thief"
+class_title = "Rogue"
+subclass_title = "Thief"
+role = 1
+attack = 5
+defence = 4
+speed = 7

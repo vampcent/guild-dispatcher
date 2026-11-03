@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AdventurerData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/characters/adventurer_data.gd" id="1_adv"]
+
+[resource]
+script = ExtResource("1_adv")
+display_name = "Evoker"
+class_title = "Wizard"
+subclass_title = "Evoker"
+role = 2
+attack = 8
+defence = 2
+speed = 3

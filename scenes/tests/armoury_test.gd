@@ -6,7 +6,7 @@ var _armoury: Armoury
 
 
 func _ready() -> void:
-	var data: ArmouryData = load("res://data/armoury.tres") as ArmouryData
+	var data: ArmouryData = load("res://data/equipment/armoury.tres") as ArmouryData
 	_armoury = Armoury.new(data)
 	print("Armoury: %d weapon types, %d of each" % [data.weapons.size(), data.base_copies])
 
@@ -74,7 +74,7 @@ func _compare_ranged() -> void:
 	ranger.class_title = "Ranger"
 	ranger.attack = 5
 	var quest: QuestData = load("res://data/quests/goblin_raid.tres") as QuestData
-	var rules: EncounterRulesData = load("res://data/encounter_rules.tres") as EncounterRulesData
+	var rules: EncounterRulesData = load("res://data/rules/encounter_rules.tres") as EncounterRulesData
 
 	for weapon_id: String in ["bow", "crossbow"]:
 		var party: Array[Loadout] = [Loadout.new(ranger, _load_weapon(weapon_id))]
@@ -99,8 +99,8 @@ func _compare_ranged() -> void:
 
 
 func _load_adventurer(id: String) -> AdventurerData:
-	return load("res://data/adventurers/%s.tres" % id) as AdventurerData
+	return load("res://data/characters/adventurers/%s.tres" % id) as AdventurerData
 
 
 func _load_weapon(id: String) -> WeaponData:
-	return load("res://data/weapons/%s.tres" % id) as WeaponData
+	return load("res://data/equipment/weapons/%s.tres" % id) as WeaponData

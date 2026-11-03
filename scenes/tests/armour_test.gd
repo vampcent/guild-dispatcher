@@ -5,10 +5,10 @@ const ARMOUR_IDS: Array[String] = ["", "leather_armour", "chain_mail", "plate_ar
 
 
 func _ready() -> void:
-	var armoury: Armoury = Armoury.new(load("res://data/armoury.tres") as ArmouryData)
-	var thief: AdventurerData = load("res://data/adventurers/thief.tres") as AdventurerData
-	var evoker: AdventurerData = load("res://data/adventurers/evoker.tres") as AdventurerData
-	var exorcist: AdventurerData = load("res://data/adventurers/exorcist.tres") as AdventurerData
+	var armoury: Armoury = Armoury.new(load("res://data/equipment/armoury.tres") as ArmouryData)
+	var thief: AdventurerData = load("res://data/characters/adventurers/thief.tres") as AdventurerData
+	var evoker: AdventurerData = load("res://data/characters/adventurers/evoker.tres") as AdventurerData
+	var exorcist: AdventurerData = load("res://data/characters/adventurers/exorcist.tres") as AdventurerData
 	var plate: ArmourData = _load_armour("plate_armour")
 	var wounds: Array[int] = []
 
@@ -31,7 +31,7 @@ func _ready() -> void:
 
 
 func _compare(adventurer: AdventurerData, armour: ArmourData) -> int:
-	var rules: EncounterRulesData = load("res://data/encounter_rules.tres") as EncounterRulesData
+	var rules: EncounterRulesData = load("res://data/rules/encounter_rules.tres") as EncounterRulesData
 	var quest: QuestData = load("res://data/quests/goblin_raid.tres") as QuestData
 	var loadout: Loadout = Loadout.new(adventurer, null, null, armour)
 	var party: Array[Loadout] = [loadout]
@@ -66,4 +66,4 @@ func _load_armour(id: String) -> ArmourData:
 	if id.is_empty():
 		return null
 
-	return load("res://data/armour/%s.tres" % id) as ArmourData
+	return load("res://data/equipment/armour/%s.tres" % id) as ArmourData

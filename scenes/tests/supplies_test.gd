@@ -4,7 +4,7 @@ const SAMPLE_RUNS: int = 2000
 
 
 func _ready() -> void:
-	var rules: EncounterRulesData = load("res://data/encounter_rules.tres") as EncounterRulesData
+	var rules: EncounterRulesData = load("res://data/rules/encounter_rules.tres") as EncounterRulesData
 	var quest: QuestData = load("res://data/quests/restless_crypt.tres") as QuestData
 	var holy_water: ItemData = _load_item("holy_water")
 	var potion: ItemData = _load_item("healing_potion")
@@ -56,7 +56,7 @@ func _compare(
 
 
 func _check_stock(item: ItemData) -> void:
-	var armoury: Armoury = Armoury.new(load("res://data/armoury.tres") as ArmouryData)
+	var armoury: Armoury = Armoury.new(load("res://data/equipment/armoury.tres") as ArmouryData)
 	var sentinel: AdventurerData = _load_adventurer("sentinel")
 	var party: Array[Loadout] = [Loadout.new(sentinel, null, null, null, [], item)]
 	var result: QuestResult = QuestResult.new()
@@ -71,9 +71,9 @@ func _check_stock(item: ItemData) -> void:
 func _check_shop(item: ItemData) -> void:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	var guild: GuildState = GuildState.new(
-		load("res://data/campaign_rules.tres") as CampaignRulesData,
-		load("res://data/armoury.tres") as ArmouryData,
-		load("res://data/economy_rules.tres") as EconomyRulesData,
+		load("res://data/rules/campaign_rules.tres") as CampaignRulesData,
+		load("res://data/equipment/armoury.tres") as ArmouryData,
+		load("res://data/rules/economy_rules.tres") as EconomyRulesData,
 		rng
 	)
 	var gold: int = guild.ledger.gold
@@ -91,8 +91,8 @@ func _check_shop(item: ItemData) -> void:
 
 
 func _load_adventurer(id: String) -> AdventurerData:
-	return load("res://data/adventurers/%s.tres" % id) as AdventurerData
+	return load("res://data/characters/adventurers/%s.tres" % id) as AdventurerData
 
 
 func _load_item(id: String) -> ItemData:
-	return load("res://data/items/%s.tres" % id) as ItemData
+	return load("res://data/equipment/items/%s.tres" % id) as ItemData

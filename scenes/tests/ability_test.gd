@@ -4,12 +4,12 @@ const SAMPLE_RUNS: int = 2000
 
 
 func _ready() -> void:
-	var rules: EncounterRulesData = load("res://data/encounter_rules.tres") as EncounterRulesData
+	var rules: EncounterRulesData = load("res://data/rules/encounter_rules.tres") as EncounterRulesData
 	var quest: QuestData = load("res://data/quests/goblin_raid.tres") as QuestData
 	var party: Array[Loadout] = []
 
 	for id: String in ["sentinel", "thief", "evoker", "exorcist"]:
-		party.append(Loadout.new(load("res://data/adventurers/%s.tres" % id) as AdventurerData))
+		party.append(Loadout.new(load("res://data/characters/adventurers/%s.tres" % id) as AdventurerData))
 
 	_print_sample(party, quest, rules)
 	var all_wins: int = _print_odds("All abilities", party, quest, rules)

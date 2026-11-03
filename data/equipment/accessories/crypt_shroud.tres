@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AccessoryData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/equipment/accessory_data.gd" id="1_accessory"]
+
+[resource]
+script = ExtResource("1_accessory")
+display_name = "Crypt Shroud"
+rarity = 3
+special_effect = 1
+special_tag = "undead"
+report_line = "The {enemies} passed straight over {actor}, as if the shroud had hidden them from sight."
+defence_bonus = 2

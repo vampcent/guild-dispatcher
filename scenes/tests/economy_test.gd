@@ -7,7 +7,7 @@ var _quest: QuestData
 
 
 func _ready() -> void:
-	_rules = load("res://data/economy_rules.tres") as EconomyRulesData
+	_rules = load("res://data/rules/economy_rules.tres") as EconomyRulesData
 	_quest = load("res://data/quests/goblin_raid.tres") as QuestData
 
 	var ledger: GuildLedger = GuildLedger.new(_rules)
@@ -75,12 +75,12 @@ func _ready() -> void:
 
 
 func _compare_gold(label: String, ids: Array[String]) -> float:
-	var rules: EncounterRulesData = load("res://data/encounter_rules.tres") as EncounterRulesData
+	var rules: EncounterRulesData = load("res://data/rules/encounter_rules.tres") as EncounterRulesData
 	var quest: QuestData = load("res://data/quests/counting_house_job.tres") as QuestData
 	var party: Array[Loadout] = []
 
 	for id: String in ids:
-		party.append(Loadout.new(load("res://data/adventurers/%s.tres" % id) as AdventurerData))
+		party.append(Loadout.new(load("res://data/characters/adventurers/%s.tres" % id) as AdventurerData))
 
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = 1234

@@ -35,14 +35,21 @@ To make **F5** start the game, right-click `main.tscn` and choose **Set as Main 
 
 ```text
 res://
-├── data/              # Game content, stored as .tres files
+├── data/                  # Game content, stored as .tres files
+│   ├── characters/        # Adventurers and abilities
+│   ├── equipment/         # Weapons, armour, accessories, items and the armoury
+│   ├── quests/
+│   ├── reports/           # Report wording
+│   └── rules/             # Balance numbers for encounters, the economy and the campaign
 ├── scripts/
-│   ├── data/          # Definitions of each type of game data
-│   ├── simulation/    # Quest logic and guild rules, with no UI code
-│   └── reports/       # Turns recorded events into written reports
+│   ├── data/              # Definitions of each type of game data, in the same groups
+│   ├── simulation/
+│   │   ├── encounter/     # Running a quest and recording events
+│   │   └── guild/         # Gold, the armoury, the quest board and guild state
+│   └── reports/           # Turns recorded events into written reports
 └── scenes/
-    ├── main/          # The playable game and its screens
-    └── tests/         # Small scenes that test one system at a time
+    ├── main/              # The playable game and its screens
+    └── tests/             # Small scenes that test one system at a time
 ```
 
 Two rules keep the project easy to extend:
@@ -76,6 +83,7 @@ To add a test, create a scene in `scenes/tests` whose name ends in `_test`, give
 | `loot_test` | Accessories, item tiers and loot |
 | `economy_test` | Pay, wages, debt and closing the guild |
 | `supplies_test` | Supply items and buying more |
+| `board_test` | Quests worsening and expiring |
 | `report_test` | Written reports |
 
 ## Roadmap
